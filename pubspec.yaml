@@ -29,12 +29,15 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.3
 
-  moor: ^3.1.0
-  moor_ffi: ^0.6.0
+  moor_flutter: ^3.0.0
+  moor_ffi: ^0.7.0
+  provider: ^3.2.0
   path_provider:
   path:
 
   opencv: ^1.0.2
+
+  flutter_slidable: ^0.5.3
 
 dev_dependencies:
   flutter_test:
