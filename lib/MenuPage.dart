@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:moor_flutter/moor_flutter.dart' as moor;
@@ -27,57 +29,20 @@ class MenuPageState extends State<MenuPage> {
 
 	final pad = 12.0;
 
-	void addProject() {
-		print("addProject");
-		TextEditingController _c = new TextEditingController();
-		showDialog(
-			context: context,
-			builder: (BuildContext context) {
-				return Dialog(
-					shape: RoundedRectangleBorder(
-						borderRadius: BorderRadius.circular(10.0)
-					),
-					child: Container(
-						height: 200,
-						child: Padding(
-							padding: const EdgeInsets.all(12.0),
-							child: Column(
-								mainAxisAlignment: MainAxisAlignment.center,
-								crossAxisAlignment: CrossAxisAlignment.start,
-								children: <Widget>[
-									TextField(
-										decoration: InputDecoration(
-											border: InputBorder.none,
-											hintText: 'Title'
-										),
-										controller: _c,
-									),
-									SizedBox(
-										width: 320.0,
-										child: RaisedButton(
-											onPressed: () async {
-												final dao = Provider.of<ProjectsDao>(context);
-												final newProject = ProjectsCompanion(
-													title: moor.Value(_c.text), 
-													description: moor.Value(""),
-												);
-												final id = await dao.insertProject(newProject);
-												print('Inserted $id');
-											},
-											child: Text(
-												"Add",
-												style: TextStyle(color: Colors.white),
-											),
-											color: const Color(0xFF1BC0C5),
-										),
-									)
-								]
-							),
-						),
-					),
-				);
-			}
+  	BuildContext _context;
+
+	void addProject() async {
+		final dao = ProjectsDatabase.dao;
+
+		final nb = (await dao.allProjects).length + 1;
+		final newProject = ProjectCompanion(
+			title: moor.Value("Project #$nb"), 
+			description: moor.Value(""),
 		);
+		
+		dao.insertProject(newProject).then((id) async {
+			openProject(await dao.getProjectByID(id));
+		});
 	}
 
   	@override
@@ -104,44 +69,84 @@ class MenuPageState extends State<MenuPage> {
 		return StreamBuilder(
 			stream: dao.watchAll(),
 			builder: (context, AsyncSnapshot<List<Project>> snapshot) {
+				_context = context;
 				final projects = snapshot.data ?? List();
+
 				return ListView.builder(
 					padding: EdgeInsets.only(bottom: pad),
 					itemCount: projects.length,
 					itemBuilder: (_, index) {
 						final item = projects[index];
-						return buildListItem(item, dao);
+						return buildListItem(context, item, dao);
 					},
 				);
 			},
 		);
 	}
 
-	Widget buildListItem(Project item, ProjectsDao dao) {
+	openProject(item) {
+		Scaffold.of(_context).removeCurrentSnackBar();
+		Navigator.pushNamed(context, ProjectPage.routeName, arguments: item);
+	}
+
+	deleteProject(BuildContext context, Project item, ProjectsDao dao) {
+		dao.deleteProject(item);
+		Scaffold.of(context).removeCurrentSnackBar();
+		ScaffoldFeatureController<SnackBar, SnackBarClosedReason> controller = Scaffold.of(context)
+        	.showSnackBar(SnackBar(
+				content: Text("${item.title} deleted"),
+				action: SnackBarAction(
+					label: 'Undo',
+					onPressed: () => dao.insertProject(item)
+				),
+			),
+		);
+
+		controller.closed.then((SnackBarClosedReason value) {
+			switch (value) {
+				case SnackBarClosedReason.dismiss:
+				case SnackBarClosedReason.swipe:
+				case SnackBarClosedReason.hide:
+				case SnackBarClosedReason.remove:
+				case SnackBarClosedReason.timeout:
+					// confirm deletion
+					try {
+						if (item.pathCroppedPic.isNotEmpty)
+							File(item.pathCroppedPic).deleteSync();
+
+						if (item.pathRawPic.isNotEmpty)
+							File(item.pathRawPic).deleteSync();
+					} catch (_){}
+					break;
+				case SnackBarClosedReason.action:
+					// do nothing
+					break;
+			}
+		});
+	}
+
+	Widget buildListItem(BuildContext context, Project item, ProjectsDao dao) {
 		return Padding(
 			padding: EdgeInsets.only(left:pad, top:pad, right:pad),
 			child: InkWell(
-				onTap: () {
-					setState(() {
-						Navigator.pushNamed(context, ProjectPage.routeName, arguments: item);
-					});
-				},
+				onTap: () => openProject(item),
 				child: Slidable(
 					key: ValueKey(item.id),
 					actionPane: SlidableDrawerActionPane(),
-					child: ProjectThumbnail(project: item,),
+					child: ProjectThumbnail(project: item),
 					closeOnScroll: true,
+					actionExtentRatio: 0.0,
 					secondaryActions: [
 						IconSlideAction(
 							caption: 'Delete',
 							color: Colors.red,
 							icon: Icons.delete,
-							onTap: () => dao.deleteProject(item),
 						),
 					],
 					dismissal: SlidableDismissal(
+						dismissThresholds: { SlideActionType.secondary : 0.5 },
 						child: SlidableDrawerDismissal(),
-						onDismissed: (direction) => dao.deleteProject(item),
+						onDismissed: (direction) => deleteProject(context, item, dao),
 						closeOnCanceled: true,
 					),
 				),

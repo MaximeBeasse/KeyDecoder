@@ -8,6 +8,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.0"
+  after_layout:
+    dependency: "direct main"
+    description:
+      name: after_layout
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.7+2"
   analyzer:
     dependency: transitive
     description:
@@ -35,14 +42,14 @@ packages:
       name: async
       url: "https://pub.dev"
     source: hosted
-    version: "2.5.0-nullsafety"
+    version: "2.5.0-nullsafety.3"
   boolean_selector:
     dependency: transitive
     description:
       name: boolean_selector
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.0-nullsafety"
+    version: "2.1.0-nullsafety.3"
   build:
     dependency: transitive
     description:
@@ -105,14 +112,14 @@ packages:
       name: characters
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0-nullsafety.2"
+    version: "1.1.0-nullsafety.5"
   charcode:
     dependency: transitive
     description:
       name: charcode
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.0-nullsafety"
+    version: "1.2.0-nullsafety.3"
   checked_yaml:
     dependency: transitive
     description:
@@ -133,7 +140,7 @@ packages:
       name: clock
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0-nullsafety"
+    version: "1.1.0-nullsafety.3"
   code_builder:
     dependency: transitive
     description:
@@ -147,7 +154,14 @@ packages:
       name: collection
       url: "https://pub.dev"
     source: hosted
-    version: "1.15.0-nullsafety.2"
+    version: "1.15.0-nullsafety.5"
+  community_material_icon:
+    dependency: "direct main"
+    description:
+      name: community_material_icon
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.4.55"
   convert:
     dependency: transitive
     description:
@@ -176,13 +190,20 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.6"
+  exif:
+    dependency: transitive
+    description:
+      name: exif
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.3"
   fake_async:
     dependency: transitive
     description:
       name: fake_async
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0-nullsafety"
+    version: "1.2.0-nullsafety.3"
   ffi:
     dependency: transitive
     description:
@@ -197,6 +218,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.2.1"
+  file_utils:
+    dependency: "direct main"
+    description:
+      name: file_utils
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.4"
   fixnum:
     dependency: transitive
     description:
@@ -209,6 +237,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_plugin_android_lifecycle:
+    dependency: transitive
+    description:
+      name: flutter_plugin_android_lifecycle
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.8"
   flutter_slidable:
     dependency: "direct main"
     description:
@@ -221,6 +256,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  fluttericon:
+    dependency: "direct main"
+    description:
+      name: fluttericon
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.7"
   glob:
     dependency: transitive
     description:
@@ -228,6 +270,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
+  globbing:
+    dependency: transitive
+    description:
+      name: globbing
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.1"
   graphs:
     dependency: transitive
     description:
@@ -235,6 +284,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.0"
+  hashcodes:
+    dependency: transitive
+    description:
+      name: hashcodes
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   html:
     dependency: transitive
     description:
@@ -242,6 +298,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.14.0+3"
+  http:
+    dependency: transitive
+    description:
+      name: http
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.12.2"
   http_multi_server:
     dependency: transitive
     description:
@@ -256,6 +319,34 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.4"
+  image_metadata:
+    dependency: "direct main"
+    description:
+      name: image_metadata
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
+  image_picker:
+    dependency: "direct main"
+    description:
+      name: image_picker
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.7+11"
+  image_picker_platform_interface:
+    dependency: transitive
+    description:
+      name: image_picker_platform_interface
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
+  image_size_getter:
+    dependency: "direct main"
+    description:
+      name: image_size_getter
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.1"
   intl:
     dependency: transitive
     description:
@@ -278,12 +369,19 @@ packages:
     source: hosted
     version: "0.6.2"
   json_annotation:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: json_annotation
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.1"
+    version: "3.1.0"
+  keyboard_visibility:
+    dependency: "direct main"
+    description:
+      name: keyboard_visibility
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.6"
   logging:
     dependency: transitive
     description:
@@ -297,14 +395,28 @@ packages:
       name: matcher
       url: "https://pub.dev"
     source: hosted
-    version: "0.12.10-nullsafety"
+    version: "0.12.10-nullsafety.3"
+  material_design_icons_flutter:
+    dependency: "direct main"
+    description:
+      name: material_design_icons_flutter
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.5755"
+  matrix4_transform:
+    dependency: "direct main"
+    description:
+      name: matrix4_transform
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.5"
   meta:
     dependency: transitive
     description:
       name: meta
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.0-nullsafety.2"
+    version: "1.3.0-nullsafety.6"
   mime:
     dependency: transitive
     description:
@@ -333,6 +445,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.3.1"
+  native_cv:
+    dependency: "direct main"
+    description:
+      path: native_cv
+      relative: true
+    source: path
+    version: "0.0.1"
   node_interop:
     dependency: transitive
     description:
@@ -360,7 +479,7 @@ packages:
       name: path
       url: "https://pub.dev"
     source: hosted
-    version: "1.8.0-nullsafety"
+    version: "1.8.0-nullsafety.3"
   path_provider:
     dependency: "direct main"
     description:
@@ -491,7 +610,14 @@ packages:
       name: source_span
       url: "https://pub.dev"
     source: hosted
-    version: "1.8.0-nullsafety"
+    version: "1.8.0-nullsafety.4"
+  sprintf:
+    dependency: transitive
+    description:
+      name: sprintf
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.1.0"
   sqflite:
     dependency: transitive
     description:
@@ -533,14 +659,14 @@ packages:
       name: stack_trace
       url: "https://pub.dev"
     source: hosted
-    version: "1.10.0-nullsafety"
+    version: "1.10.0-nullsafety.6"
   stream_channel:
     dependency: transitive
     description:
       name: stream_channel
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.0-nullsafety"
+    version: "2.1.0-nullsafety.3"
   stream_transform:
     dependency: transitive
     description:
@@ -554,7 +680,7 @@ packages:
       name: string_scanner
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0-nullsafety"
+    version: "1.1.0-nullsafety.3"
   synchronized:
     dependency: transitive
     description:
@@ -568,14 +694,14 @@ packages:
       name: term_glyph
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.0-nullsafety"
+    version: "1.2.0-nullsafety.3"
   test_api:
     dependency: transitive
     description:
       name: test_api
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.19-nullsafety"
+    version: "0.2.19-nullsafety.6"
   timing:
     dependency: transitive
     description:
@@ -583,20 +709,27 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.1+2"
+  tuple:
+    dependency: "direct main"
+    description:
+      name: tuple
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.3"
   typed_data:
     dependency: transitive
     description:
       name: typed_data
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.0-nullsafety.2"
+    version: "1.3.0-nullsafety.5"
   vector_math:
     dependency: transitive
     description:
       name: vector_math
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.0-nullsafety.2"
+    version: "2.1.0-nullsafety.5"
   watcher:
     dependency: transitive
     description:
@@ -626,5 +759,5 @@ packages:
     source: hosted
     version: "2.2.1"
 sdks:
-  dart: ">=2.10.0-0.0.dev <2.10.0"
-  flutter: ">=1.12.13+hotfix.5 <2.0.0"
+  dart: ">=2.12.0-0.0 <3.0.0"
+  flutter: ">=1.20.0 <2.0.0"
