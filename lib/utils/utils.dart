@@ -93,7 +93,7 @@ class RoundIconContainer extends StatelessWidget {
 						),
 					)
 				]
-					),
+			),
 		);
 	}
 }
