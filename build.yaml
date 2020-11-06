@@ -1,0 +1,12 @@
+# build.yaml. This file is quite powerful, see https://pub.dev/packages/build_config
+
+targets:
+  $default:
+    builders:
+      moor_generator:
+        options:
+          compact_query_methods: true
+          use_data_class_name_for_companions: true
+          mutable_classes: true
+          write_from_json_string_constructor: true
+          apply_converters_on_variables: true
