@@ -400,7 +400,7 @@ class CropPageState extends State<CropPage> {
 							mainAxisSize: MainAxisSize.max,
 		      				children: [
 								VisibleButton(
-									child: Icon(Icons.undo_rounded, size: 56.0, color: Colors.red[600],),
+									child: Icon(Icons.undo, size: 56.0, color: Colors.red[600],),
 									onTap: removeLine,
 									visible: _canRemove,
 								),

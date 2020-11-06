@@ -70,7 +70,7 @@ class MenuPageState extends State<MenuPage> {
 			stream: dao.watchAll(),
 			builder: (context, AsyncSnapshot<List<Project>> snapshot) {
 				_context = context;
-				final projects = snapshot.data ?? List();
+				final projects = snapshot.data ?? List.empty();
 
 				return ListView.builder(
 					padding: EdgeInsets.only(bottom: pad),

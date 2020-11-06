@@ -467,7 +467,7 @@ class MeasurePageState extends State<MeasurePage> {
 					),
 					Spacer(),
 					VisibleButton(
-						child: Icon(Icons.undo_outlined, size: 56.0, color: Colors.red,),
+						child: Icon(Icons.undo, size: 56.0, color: Colors.red,),
 						onTap: () => _currentStep.value--,
 						visible: _canRemove,
 					),

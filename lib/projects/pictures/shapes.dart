@@ -121,9 +121,10 @@ class Line extends Shape {
 			var x = ((m0 * a.dx - m1 * other.a.dx) - (a.dy - other.a.dy)) / (m0 - m1);
 			return Offset(x, m0 * (x - a.dx) + a.dy);
 	}
-
+	
 	List<Offset> xtersectList(List<Line> others) {
 		
+  // ignore: unused_local_variable
 		var m0 = tan(mAngle);
 
 		for (Line other in others) {

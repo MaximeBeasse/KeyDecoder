@@ -42,7 +42,7 @@ class ProjectPageState extends State<ProjectPage> {
 
 	Project project;
 
-	bool _updated;
+	bool _updated = false;
 
 	KeyboardVisibilityNotification _kvn;
 
@@ -50,8 +50,6 @@ class ProjectPageState extends State<ProjectPage> {
 	void initState() {
 		project = widget.project;
 		print(project);
-
-		_updated = false;
 
 		_titleController = TextEditingController.fromValue(
 			TextEditingValue(
@@ -287,7 +285,7 @@ class ProjectPageState extends State<ProjectPage> {
 						Visibility(
 							visible: project.pathCroppedPic != null && project.pathCroppedPic.isNotEmpty,
 							child: ListTile(
-								leading: Icon(Icons.straighten_sharp),
+								leading: Icon(Icons.straighten),
 								title: Text('Measure cuts'),
 								onTap: () {
 									measureCuts().then((_) => Navigator.pop(context, null));

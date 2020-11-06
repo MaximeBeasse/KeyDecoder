@@ -89,7 +89,7 @@ class RoundIconContainer extends StatelessWidget {
 						child: Positioned(
 							bottom: -2,
 							right: -2,
-							child: Icon(Icons.check_outlined, color: Colors.green, size: 24)
+							child: Icon(Icons.check, color: Colors.green, size: 24)
 						),
 					)
 				]
