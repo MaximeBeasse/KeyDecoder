@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:highlighter_coachmark/highlighter_coachmark.dart';
+import 'package:keydecoder/utils/utils.dart';
 import 'package:moor_flutter/moor_flutter.dart' as moor;
 import 'ProjectPage.dart';
 import 'projects/model/projects.dart';
@@ -29,8 +31,6 @@ class MenuPageState extends State<MenuPage> {
 
 	final pad = 12.0;
 
-  	BuildContext _context;
-
 	void addProject() async {
 		final dao = ProjectsDatabase.dao;
 
@@ -47,29 +47,36 @@ class MenuPageState extends State<MenuPage> {
 
   	@override
   	Widget build(BuildContext context) {
-		return Scaffold(
-	  		appBar: AppBar(title: Text(widget.title)),
-	  		body: Column(
-					children: <Widget>[
-						Expanded(
-							child: buildProjectList(context)
-			  			),
-					],
+		return WillPopScope(
+			onWillPop: _onWillPop,
+			child: Scaffold(
+				appBar: AppBar(title: Text(widget.title)),
+				body: Column(
+						children: <Widget>[
+							Expanded(
+								child: buildProjectList(context)
+							),
+						],
+					),
+				floatingActionButton: FloatingActionButton(
+					onPressed: addProject,
+					tooltip: 'Add Project',
+					child: const Icon(Icons.add),
 				),
-			floatingActionButton: FloatingActionButton(
-				onPressed: addProject,
-				tooltip: 'Add Project',
-				child: const Icon(Icons.add),
-	  		),
+			),
 		);
   	}
+
+	Future<bool> _onWillPop() {
+		enableRotation();
+		return Future.value(true);
+	}
 
 	StreamBuilder<List<Project>> buildProjectList(BuildContext context) {
 		final dao = Provider.of<ProjectsDao>(context);
 		return StreamBuilder(
 			stream: dao.watchAll(),
 			builder: (context, AsyncSnapshot<List<Project>> snapshot) {
-				_context = context;
 				final projects = snapshot.data ?? List.empty();
 
 				return ListView.builder(
@@ -77,7 +84,7 @@ class MenuPageState extends State<MenuPage> {
 					itemCount: projects.length,
 					itemBuilder: (_, index) {
 						final item = projects[index];
-						return buildListItem(context, item, dao);
+						return buildListItem(item, dao);
 					},
 				);
 			},
@@ -85,14 +92,14 @@ class MenuPageState extends State<MenuPage> {
 	}
 
 	openProject(item) {
-		Scaffold.of(_context).removeCurrentSnackBar();
+		ScaffoldMessenger.of(context).removeCurrentSnackBar();
 		Navigator.pushNamed(context, ProjectPage.routeName, arguments: item);
 	}
 
-	deleteProject(BuildContext context, Project item, ProjectsDao dao) {
+	deleteProject(Project item, ProjectsDao dao) {
 		dao.deleteProject(item);
-		Scaffold.of(context).removeCurrentSnackBar();
-		ScaffoldFeatureController<SnackBar, SnackBarClosedReason> controller = Scaffold.of(context)
+		ScaffoldMessenger.of(context).removeCurrentSnackBar();
+		ScaffoldFeatureController<SnackBar, SnackBarClosedReason> controller = ScaffoldMessenger.of(context)
         	.showSnackBar(SnackBar(
 				content: Text("${item.title} deleted"),
 				action: SnackBarAction(
@@ -125,7 +132,7 @@ class MenuPageState extends State<MenuPage> {
 		});
 	}
 
-	Widget buildListItem(BuildContext context, Project item, ProjectsDao dao) {
+	Widget buildListItem(Project item, ProjectsDao dao) {
 		return Padding(
 			padding: EdgeInsets.only(left:pad, top:pad, right:pad),
 			child: InkWell(
@@ -146,7 +153,7 @@ class MenuPageState extends State<MenuPage> {
 					dismissal: SlidableDismissal(
 						dismissThresholds: { SlideActionType.secondary : 0.5 },
 						child: SlidableDrawerDismissal(),
-						onDismissed: (direction) => deleteProject(context, item, dao),
+						onDismissed: (direction) => deleteProject(item, dao),
 						closeOnCanceled: true,
 					),
 				),

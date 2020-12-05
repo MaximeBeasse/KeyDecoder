@@ -56,7 +56,7 @@ class MeasurePageState extends State<MeasurePage> {
 	double _baseAngle = 0.0;
 	double _mAngle;
 
-	List<Offset> _markers = List<Offset>();
+	List<Offset> _markers = List<Offset>.empty(growable: true);
 
 	final Color _colorDisable = Color(0xFFe0f2f1);
 	final Color _colorActive = Colors.lightBlue[400];
@@ -115,7 +115,7 @@ class MeasurePageState extends State<MeasurePage> {
 
 	void initStep() {
 
-		if (widget.project.angle == null)
+		if (widget.project.markers == null)
 			return;
 
 		_mAngle = _baseAngle + widget.project.angle;
@@ -160,6 +160,15 @@ class MeasurePageState extends State<MeasurePage> {
 		_markers = fromBlob(widget.project.markers);
 		_markers.forEach((center) {
 			addMarker(center);
+		});
+
+		shapeNotifier.addListener(() {
+			Offset coords = _editorBaseState.globalToLocal(MediaQuery.of(context).size.center(Offset.zero));
+			coords = transformOffset(Matrix4.inverted(_subMatrix), coords);
+			coords = Offset(_editorBaseState.px2mm(coords.dx), _editorBaseState.px2mm(coords.dy));
+			setState(() {
+				_coordinates = "${coords.dx.toStringAsFixed(3)}, ${coords.dy.toStringAsFixed(3)}";
+			}); 
 		});
 
 		shapeNotifier.changed();
@@ -383,8 +392,9 @@ class MeasurePageState extends State<MeasurePage> {
 		Offset _offset = center ?? _editorBaseState.globalToLocal(MediaQuery.of(context).size.center(Offset.zero));
 
 		Matrix4 m = Matrix4.inverted(_subMatrix);
+		Offset transformedCenter = transformOffset(m, _offset);
 
-		Crosshair ch = Crosshair(_offset, angle, transformOffset(m, _offset) * _editorBaseState.isoRatio, Crosshair.markerPaint, _editorBaseState.scaleFactor);
+		Crosshair ch = Crosshair(_offset, angle, transformedCenter * _editorBaseState.isoRatio, Crosshair.markerPaint, _editorBaseState.scaleFactor);
 
 		ch.size = ch.baseSize / _editorBaseState.scaleFactor;
 		ch.paint.strokeWidth = Crosshair.strokeWidth / _editorBaseState.scaleFactor;
@@ -396,18 +406,16 @@ class MeasurePageState extends State<MeasurePage> {
 
 		int i;
 
-		List<Offset> transformed = List<Offset>();
+		List<Offset> transformed = List<Offset>.empty(growable: true);
 
 		for (i = 0; i < _markers.length; i++) {
 			transformed.add(transformOffset(m, _markers[i]));
 		}
 
-		for (i = 1; i < _markers.length; i++) {
-			if (transformed[i - 1].dy.abs() > transformed[i].dy.abs())
+		for (i = 0; i < _markers.length ; i++) {
+			if (transformed[i].dx.abs() < transformedCenter.dx.abs())
 				break;
 		}
-
-		i -= 1;
 
 		_markers.insert(i, ch.center);
 		shapeNotifier.markers.insert(i, ch);
@@ -543,7 +551,6 @@ class MeasurePageState extends State<MeasurePage> {
 										width: 25,
 										decoration: BoxDecoration(borderRadius: BorderRadius.circular(2), color: Colors.blueGrey[800],),
 									),
-
 									// Third Step: Measure
 									RoundIconContainer(
 										color: (_currentStep.value < 2) ? _colorDisable : (_currentStep.value > 2) ? _colorDone : _colorActive,

@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:after_layout/after_layout.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -64,7 +63,7 @@ class ShapeNotifier extends ChangeNotifier {
 			else
 				element.paint?.strokeWidth = Shape.strokeWidth / scale;
 
-			// print("strokeWidth: ${element?.paint?.strokeWidth} scale: $scale");
+			//print("strokeWidth: ${element?.paint?.strokeWidth} scale: $scale");
 			
 		});
 	}
@@ -158,7 +157,7 @@ class EditorBase extends StatefulWidget {
 	/// actual touch radius is [touchRadius * touchSizeFactor]
 	static const double touchSizeFactor = 1.8;
 
-	static const double strokeWidth = 1.5;
+	static const double strokeWidth = Shape.strokeWidth;
 
 	static Future initEditorBase() async {
 		await SystemChrome.setEnabledSystemUIOverlays([]);
@@ -174,7 +173,7 @@ class EditorBase extends StatefulWidget {
 	EditorBaseState createState() => EditorBaseState();
 }
 
-class EditorBaseState extends State<EditorBase> with AfterLayoutMixin<EditorBase>{
+class EditorBaseState extends State<EditorBase> {
 
 	GlobalKey painterKey = GlobalKey();
 
@@ -242,7 +241,6 @@ class EditorBaseState extends State<EditorBase> with AfterLayoutMixin<EditorBase
 
 	@override
 	void dispose() {
-		EditorBase.disposeEditorBase();
 		super.dispose();
 	}
 
@@ -359,11 +357,6 @@ class EditorBaseState extends State<EditorBase> with AfterLayoutMixin<EditorBase
 	}
 
 	@override
-	void afterFirstLayout(BuildContext context) async {
-			
-	}
-
-	@override
 	Widget build(BuildContext context) {
 
 		if (_mediaQuery == null) {
@@ -397,84 +390,92 @@ class EditorBaseState extends State<EditorBase> with AfterLayoutMixin<EditorBase
 
 		Size imageSize = _imageSize;
 
-		return ChangeNotifierProvider<ShapeNotifier>.value(
-			value: widget.shapes,
-			child: XGestureDetector(
-				onScaleStart: onScaleStart,
-				onScaleUpdate: onScaleUpdate,
-				onMoveStart: _onMoveStart,
-				onMoveUpdate: _onMoveUpdate,
-				onMoveEnd: _onMoveEnd,
-				child: RotatedBox(
-					quarterTurns: (widget.portrait) ? -1 : 0,
-					child: Builder(
-						builder: (stackContext) => Transform.scale(
-							key: _baseKey,
-							scale: _initScale,
-							child: Transform(
-								transform: matrix,
-								child: Builder(
-									builder: (stackContext) => OverflowBox(
-										minWidth: imageSize.width,
-										minHeight: imageSize.height,
-										maxWidth: imageSize.width,
-										maxHeight: imageSize.height,
-										child: Stack(
-											alignment: Alignment.center,
-											fit: StackFit.loose,
-											clipBehavior: Clip.none,
-											children: [
-												Image.memory(
-													widget.imageData,
-													key: _imageKey,
-													frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-														if (wasSynchronouslyLoaded) {
-															return child;
-														}
-														
-														if (frame == null)
-															return Transform.scale(
-																scale: 10,
-																child: CircularProgressIndicator()
-															);
-														else {
-															if (onInitialization != null) {
-																SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-																	print('globalZero = ${imageRenderBox.localToGlobal(Offset.zero, ancestor: ancestor)}');
-																	print('localZero = ${imageRenderBox.globalToLocal(Offset.zero, ancestor: ancestor)}');
-																	print('');
-
-																	onInitialization();
-																	onInitialization = null;
-																});
+		return WillPopScope(
+			onWillPop: _onWillPop,
+			child: ChangeNotifierProvider<ShapeNotifier>.value(
+				value: widget.shapes,
+				child: XGestureDetector(
+					onScaleStart: onScaleStart,
+					onScaleUpdate: onScaleUpdate,
+					onMoveStart: _onMoveStart,
+					onMoveUpdate: _onMoveUpdate,
+					onMoveEnd: _onMoveEnd,
+					child: RotatedBox(
+						quarterTurns: (widget.portrait) ? -1 : 0,
+						child: Builder(
+							builder: (stackContext) => Transform.scale(
+								key: _baseKey,
+								scale: _initScale,
+								child: Transform(
+									transform: matrix,
+									child: Builder(
+										builder: (stackContext) => OverflowBox(
+											minWidth: imageSize.width,
+											minHeight: imageSize.height,
+											maxWidth: imageSize.width,
+											maxHeight: imageSize.height,
+											child: Stack(
+												alignment: Alignment.center,
+												fit: StackFit.loose,
+												clipBehavior: Clip.none,
+												children: [
+													Image.memory(
+														widget.imageData,
+														key: _imageKey,
+														frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+															if (wasSynchronouslyLoaded) {
+																return child;
 															}
-															return child;
-														}
-													},
-													gaplessPlayback: true,
-													filterQuality: FilterQuality.high,
-													width: imageSize.width,
-													height: imageSize.height,
-												),
-												Consumer<ShapeNotifier>(
-													builder: (painterContext, value, child) {
-														return CustomPaint(
-															key: painterKey,
-															size: _imageSize,
-															painter: EditorPainter(painterContext, shapes: value.all),
-														);
-													},
-												)
-											]
+															
+															if (frame == null)
+																return Transform.scale(
+																	scale: 10,
+																	child: CircularProgressIndicator()
+																);
+															else {
+																if (onInitialization != null) {
+																	SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+																		print('globalZero = ${imageRenderBox.localToGlobal(Offset.zero, ancestor: ancestor)}');
+																		print('localZero = ${imageRenderBox.globalToLocal(Offset.zero, ancestor: ancestor)}');
+																		print('');
+
+																		onInitialization();
+																		onInitialization = null;
+																	});
+																}
+																return child;
+															}
+														},
+														gaplessPlayback: true,
+														filterQuality: FilterQuality.high,
+														width: imageSize.width,
+														height: imageSize.height,
+													),
+													Consumer<ShapeNotifier>(
+														builder: (painterContext, value, child) {
+															return CustomPaint(
+																key: painterKey,
+																size: _imageSize,
+																painter: EditorPainter(painterContext, shapes: value.all),
+															);
+														},
+													)
+												]
+											),
 										),
-									),
-								)
+									)
+								),
 							),
 						),
 					),
 				),
 			),
 		);
+	}
+
+	Future<bool> _onWillPop() async {
+		await EditorBase.disposeEditorBase();
+		return Future.value(true);
 	}
 
 	_ValueUpdater<Offset> translationUpdater = _ValueUpdater(

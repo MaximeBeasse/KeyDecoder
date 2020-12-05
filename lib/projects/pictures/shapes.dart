@@ -7,7 +7,7 @@ import 'package:vector_math/vector_math_64.dart' hide Colors;
 
 abstract class Shape {
 
-	static double get strokeWidth => 1.5;
+	static const double strokeWidth = 0.7;
 
 	Shape(this.paint);
 
@@ -109,32 +109,49 @@ class Line extends Shape {
 	Offset xtersect(Line other) {
 		if ((((mAngle - other.mAngle) % pi) + pi) % pi == 0) return null;
 		if (((mAngle % pi) + pi) % pi == pi/2.0) {
-				// vertical line at x = a.dx
-				return Offset(a.dx, tan(other.mAngle) * (a.dx-other.a.dx) + other.a.dy);
-			}
-			else if (((other.mAngle % pi) + pi) % pi == pi/2.0) {
-				// vertical line at x = a.dx
-				return Offset(other.a.dx, tan(mAngle) * (other.a.dx-a.dx) + a.dy);
-			}
-			var m0 = tan(mAngle); // Line 0: y = m0 (x - a.dx) + a.dy
-			var m1 = tan(other.mAngle); // Line 1: y = m1 (x - other.a.dx) + other.a.dy
-			var x = ((m0 * a.dx - m1 * other.a.dx) - (a.dy - other.a.dy)) / (m0 - m1);
-			return Offset(x, m0 * (x - a.dx) + a.dy);
+			// vertical line at x = a.dx
+			return Offset(a.dx, tan(other.mAngle) * (a.dx-other.a.dx) + other.a.dy);
+		}
+		else if (((other.mAngle % pi) + pi) % pi == pi/2.0) {
+			// vertical line at x = other.a.dx
+			return Offset(other.a.dx, tan(mAngle) * (other.a.dx-a.dx) + a.dy);
+		}
+		var m0 = tan(mAngle); // Line 0: y = m0 (x - a.dx) + a.dy
+		var m1 = tan(other.mAngle); // Line 1: y = m1 (x - other.a.dx) + other.a.dy
+		var x = ((m0 * a.dx - m1 * other.a.dx) - (a.dy - other.a.dy)) / (m0 - m1);
+		return Offset(x, m0 * (x - a.dx) + a.dy);
 	}
 	
-	List<Offset> xtersectList(List<Line> others) {
+	List<Offset> xtersectList(List<Line> others, {ui.Rect bounds}) {
 		
-  // ignore: unused_local_variable
-		var m0 = tan(mAngle);
+		var m0 = tan(mAngle); // Line 0: y = m0 (x - a.dx) + a.dy
+		bool thisIsVertical = (((mAngle % pi) + pi) % pi == pi/2.0);
+
+		List<Offset> intersections = List<Offset>.empty(growable: true);
 
 		for (Line other in others) {
 
 			if ((((mAngle - other.mAngle) % pi) + pi) % pi == 0)
 				continue;
-			
+
+			if (thisIsVertical) {
+				intersections.add(Offset(a.dx, tan(other.mAngle) * (a.dx-other.a.dx) + other.a.dy));
+				continue;
+			} else if (((other.mAngle % pi) + pi) % pi == pi/2.0) {
+				intersections.add(Offset(other.a.dx, m0 * (other.a.dx-a.dx) + a.dy));
+				continue;
+			}
+
+			var m1 = tan(other.mAngle); // Line 1: y = m1 (x - other.a.dx) + other.a.dy
+			var x = ((m0 * a.dx - m1 * other.a.dx) - (a.dy - other.a.dy)) / (m0 - m1);
+			intersections.add(Offset(x, m0 * (x - a.dx) + a.dy));
 		}
 
-		return [];
+		if (bounds != null) {
+			intersections.removeWhere((element) => !bounds.contains(element));
+		}
+
+		return intersections;
 		// TODO 
 		/*if ((((mAngle - other.mAngle) % pi) + pi) % pi == 0) return null;
 		if (((mAngle % pi) + pi) % pi == pi/2.0) {
@@ -249,10 +266,11 @@ class Crosshair extends Shape {
 		);
 	}
 
-	void drawText(Canvas context, String txt, Color color, double x, double y, double rads) {
+	void drawText(Canvas context, String txt, Color color, Offset origin, double x, double y, double rads) {
 		context.save();
-			context.translate(x, y);
+			context.translate(origin.dx, origin.dy);
 			context.rotate(rads);
+			context.translate(x, y);
 
 			textStyle = textStyle.copyWith(color: color,);
 
@@ -291,7 +309,7 @@ class Crosshair extends Shape {
 			..blendMode = BlendMode.difference
 			..style = PaintingStyle.fill;
 
-	static double get strokeWidth => Shape.strokeWidth * 2;
+	static double get strokeWidth => Shape.strokeWidth * 3;
 
 	@override
 	void draw(Canvas canvas, BuildContext context) {
@@ -319,16 +337,24 @@ class Crosshair extends Shape {
 				textDirection: TextDirection.ltr
 			);
 			textPainter.layout();
+			
+			double sign = measures.dy.sign;
+			
+			// Main measures
+			String mainStr = measures.dy.abs().toStringAsFixed(3);
+			Color mainColor = Colors.red[700];
+			
+			drawText(canvas, mainStr, mainColor, center, sign * ((sign < 0) ? (-size) : (-textPainter.width - size)), sign * ((sign < 0) ? (textPainter.height / 2) : (-textPainter.height / 2)), angle + pi/2);
+
+			sign = measures.dx.sign;
 
 			// Cross measures
-			double sign = measures.dx.sign;
 			String crossStr = measures.dx.abs().toStringAsFixed(3);
-			drawText(canvas, crossStr, Colors.blue[700], center.dx - (sign * textPainter.width + size*4/3) * cos(angle), center.dy - ((sign < 0) ? (-textPainter.height*4) : (textPainter.height/2)) * sin(angle), angle);
+			Color crossColor = Colors.blue[700];
+			
+			drawText(canvas, crossStr, crossColor, center, sign * ((sign < 0) ? (-size) : (-textPainter.width - size)), sign * ((sign < 0) ? (textPainter.height / 2) : (-textPainter.height / 2)), angle);
 
-			// Main measures
-			sign = measures.dy.sign;
-			String mainStr = measures.dy.abs().toStringAsFixed(3);
-			drawText(canvas, mainStr, Colors.red[700], center.dx + sign * ((sign < 0) ? (textPainter.height*4) : (textPainter.height/2)) * sin(angle), center.dy + (sign * textPainter.width + size*3/4) * -cos(angle), angle + pi/2);
+
 		}
 	}
 }

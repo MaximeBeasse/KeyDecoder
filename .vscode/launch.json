@@ -8,19 +8,22 @@
 			"name": "Flutter Debug",
 			"request": "launch",
 			"type": "dart",
-			"flutterMode": "debug"
+			"program": "lib/main.dart",
+			"flutterMode": "debug",
 		},
 		{
 			"name": "Flutter Profiling",
 			"request": "launch",
 			"type": "dart",
-			"flutterMode": "profile"
+			"program": "lib/main.dart",
+			"flutterMode": "profile",
 		},
 		{
 			"name": "Flutter Release",
 			"request": "launch",
 			"type": "dart",
-			"flutterMode": "release"
+			"program": "lib/main.dart",
+			"flutterMode": "release",
 		}
 	]
 }

@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:image_metadata/image_metadata.dart';
 import 'EditorBase.dart';
 import 'projects/pictures/shapes.dart';
-import 'package:native_cv/native_cv.dart';
+import 'native_cv/native_cv.dart';
+import 'dart:ui' as ui;
 
 import 'package:path/path.dart' as p;
 import 'utils/utils.dart';
@@ -47,7 +48,7 @@ class CropPageState extends State<CropPage> {
 
 	bool _portrait = false;
 
-	Size imageSize;
+	Size imageSize = Size.zero;
 
 	EditorBaseState get _editorBaseState => (editorKey.currentState as EditorBaseState);
 
@@ -146,7 +147,7 @@ class CropPageState extends State<CropPage> {
 			shapeNotifier.draggableShapes.add(Circle(newLine.b, EditorBase.touchRadius / scaleFactor, _cropPaint));
 		}
 
-		if (shapeNotifier?.lineShapes?.length == 4) {
+		if (shapeNotifier.lineShapes.length == 4) {
 			setState(() {
 				_canAccept = true;
 				_canAdd = false;
@@ -172,14 +173,14 @@ class CropPageState extends State<CropPage> {
 		/*shapeNotifier.miscellaneous.clear();
 
 		shapeNotifier.miscellaneous.add(Segment(
-			_editorBaseState.globalToLocal(Offset(0, 0)),
-			_editorBaseState.globalToLocal(Offset(longestSide, shortestSide)),
+			Offset(0, 0),
+			Offset(imageSize.width, imageSize.height),
 			Paint()..color = Colors.blue
 		));
 
 		shapeNotifier.miscellaneous.add(Segment(
-			_editorBaseState.globalToLocal(Offset(0, shortestSide)),
-			_editorBaseState.globalToLocal(Offset(longestSide, 0)),
+			Offset(0, imageSize.height),
+			Offset(imageSize.width, 0),
 			Paint()..color = Colors.red
 		));
 
@@ -250,19 +251,13 @@ class CropPageState extends State<CropPage> {
 		List<Line> lines = shapeNotifier.lineShapes.cast<Line>();
 
 		List<Offset> intersections = [];
-		
-		var i, j;
 
-		for (i = 0; i < 3; i++) {
-			for (j = i + 1; j < 4; j++) {
-				Offset p = lines[i].xtersect(lines[j]);
+		double pad = imageSize.height / 6;
 
-				if(p == null)
-					continue;
+		ui.Rect bounds = Offset(-pad, -pad) & Size(imageSize.width + 2 * pad, imageSize.height + 2 * pad);
 
-				if(p.dx >= 0 && p.dx < imageSize.width && p.dy >= 0 && p.dy < imageSize.height)
-					intersections.add(p);
-			}
+		for (var i = 0; i < 3; i++) {
+			intersections.addAll(lines[i].xtersectList(lines.sublist(i+1), bounds: bounds));
 		}
 
 		// Wrong number of corners. Inform user that he has made a mistake
@@ -275,7 +270,7 @@ class CropPageState extends State<CropPage> {
 					actions: [
 						FlatButton(
 							child: Text('Ok'),
-							onPressed: Navigator.of(context).pop,
+							onPressed: Navigator.of(context)?.pop,
 						)
 					],
 				),

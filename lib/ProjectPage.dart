@@ -1,12 +1,15 @@
 import 'dart:io';
 
+import 'package:animate_icons/animate_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:keyboard_visibility/keyboard_visibility.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:keydecoder/CropPage.dart';
 import 'package:image_picker/image_picker.dart' show ImageSource;
 import 'package:keydecoder/utils/gesture_x_detector.dart';
 import 'package:provider/provider.dart';
+
+import 'package:highlighter_coachmark/highlighter_coachmark.dart';
 
 import 'EditorBase.dart';
 import 'MeasurePage.dart';
@@ -39,17 +42,16 @@ class ProjectPageState extends State<ProjectPage> {
 
 	FocusNode _fnTitle;
 	FocusNode _fnBrief;
+  	FocusNode _fnFabs;
 
 	Project project;
 
 	bool _updated = false;
 
-	KeyboardVisibilityNotification _kvn;
-
 	@override
 	void initState() {
+
 		project = widget.project;
-		print(project);
 
 		_titleController = TextEditingController.fromValue(
 			TextEditingValue(
@@ -67,14 +69,15 @@ class ProjectPageState extends State<ProjectPage> {
 
 		_fnBrief = FocusNode();
 
-		_kvn = KeyboardVisibilityNotification()..addNewListener(
-			onChange: (bool visible) {
-				if (!visible) {
-					_fnTitle.unfocus();
-					_fnBrief.unfocus();
-				}
-			},
-		);
+		_fnFabs = FocusNode();
+
+		KeyboardVisibility.onChange.listen((bool visible) {
+			if (!visible) {
+				_fnTitle?.unfocus();
+				_fnBrief?.unfocus();
+				_fnFabs?.unfocus();
+			}
+		});
 
 		super.initState();
 	}
@@ -87,7 +90,8 @@ class ProjectPageState extends State<ProjectPage> {
 		_descriptionController?.dispose();
 		_fnBrief?.dispose();
 
-		_kvn?.dispose();
+		_fnFabs?.dispose();
+
 		super.dispose();
 	}
 
@@ -119,7 +123,7 @@ class ProjectPageState extends State<ProjectPage> {
 				decoration: InputDecoration(),
 				autofocus: false,
 				showCursor: true,
-				maxLines: 5,
+				maxLines: 2,
 				// inputFormatters:[
 				// 	LengthLimitingTextInputFormatter(32),
 				// ],
@@ -133,15 +137,88 @@ class ProjectPageState extends State<ProjectPage> {
 		);
 	}
 
+	Widget generateTableForAxis(List<Offset> markers) {
+		List<double> depths = <double>[];
+		List<double> gaps = <double>[];
+		List<Widget> depthsText = <Widget>[];
+		List<Widget> gapsText = <Widget>[];
+		Matrix4 bittingMat = Matrix4.inverted(Matrix4.translationValues(project.originX, project.originY, 0)..rotateZ(project.angle));
+
+		for (var i = 0; i < markers.length; i++) {
+			markers[i] = transformOffset(bittingMat, markers[i]);
+			depths.add(markers[i].dy.abs() * project.isoRatio);
+			if (i > 0)
+				gaps.add((markers[i-1].dx.abs() - markers[i].dx.abs()).abs() * project.isoRatio);
+		}
+
+		depths.forEach((d) {
+			depthsText.add(
+				Center(
+					child: Container(
+						padding: EdgeInsets.symmetric(vertical: 2),
+						child: Text('${d.toStringAsFixed(3)}')
+					)
+				)
+			);
+		});
+
+		gaps.forEach((g) {
+			gapsText.add(
+				Center(
+					child: Container(
+						padding: EdgeInsets.symmetric(vertical: 2),
+						child: Text('${g.toStringAsFixed(3)}')
+					)
+				)
+			);
+		});
+		
+		return DefaultTextStyle(
+			style: TextStyle(
+				fontSize: 12 + (10 - depthsText.length) / 4,
+				color: Colors.black,
+			),
+			child: Column(
+				children: [
+					Table(
+						border: TableBorder.all(),
+						children: [
+							TableRow(
+								children: depthsText
+							)
+						]
+					),
+					Padding(
+						padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width / depthsText.length / 2),
+						child: Table(
+							border: TableBorder(
+								bottom: BorderSide(),
+								left: BorderSide(),
+								right: BorderSide(),
+								verticalInside: BorderSide(),
+							),
+							children: [
+								TableRow(
+									children: gapsText
+								)
+							]
+						),
+					),
+				],
+			),
+		);
+	}
+
 	body() {
 		return SingleChildScrollView(
+			primary: true,
 			child: Column(
 				children: [
 					title(),
 					Divider(height: 10.0,),
 					description(),
 					Visibility(
-						visible: project.markers != null,
+						visible: project.markers != null && project.markers.isNotEmpty,
 						child: Padding(
 							padding: const EdgeInsets.all(8.0),
 							child: Column(
@@ -149,103 +226,45 @@ class ProjectPageState extends State<ProjectPage> {
 									Builder(
 										builder: (ctxt) {
 											List<Offset> markers = fromBlob(project.markers);
-											List<double> depths = List<double>();
-											List<double> gaps = List<double>();
-											List<Widget> depthsText = List<Widget>();
-											List<Widget> gapsText = List<Widget>();
-											Matrix4 bittingMat = Matrix4.inverted(Matrix4.translationValues(project.originX, project.originY, 0)..rotateZ(project.angle));
 
-											for (var i = 0; i < markers.length; i++) {
-												markers[i] = transformOffset(bittingMat, markers[i]);
-												depths.add(markers[i].dy.abs() * project.isoRatio);
-												if (i > 0)
-													gaps.add((markers[i-1].dx.abs() - markers[i].dx.abs()).abs() * project.isoRatio);
-											}
-
-											depths.forEach((d) {
-												depthsText.add(
-													Center(
-														child: Container(
-															padding: EdgeInsets.all(2),
-															child: Text('${d.toStringAsFixed(3)}')
-														)
-													)
-												);
-											});
-
-											gaps.forEach((g) {
-												gapsText.add(
-													Center(
-														child: Container(
-															padding: EdgeInsets.all(2),
-															child: Text('${g.toStringAsFixed(3)}')
-														)
-													)
-												);
-											});
-											
-											return Column(
-												children: [
-													Table(
-														border: TableBorder.all(),
-														children: [
-															TableRow(
-																children: depthsText
-															)
-														]
-													),
-													Table(
-														border: TableBorder(
-															bottom: BorderSide(),
-															left: BorderSide(),
-															right: BorderSide(),
-															verticalInside: BorderSide(),
-														),
-														children: [
-															TableRow(
-																children: gapsText
-															)
-														]
-													),
-												],
-											);
+											// TODO separate axis and generate tables accordingly
+											if (markers.isNotEmpty)
+												return generateTableForAxis(markers.reversed.toList());
+											return Container();
 										},
 									)
 								],
 							),
 						),
 					),
-					/*
-					Visibility(
-						visible: project.pathRawPic != null && project.pathRawPic.isNotEmpty,
-						child: Padding(
-							padding: const EdgeInsets.all(8.0),
-							child: Image.file(File(project.pathRawPic)),
-						),
-					),
-					Visibility(
-						visible: project.pathCroppedPic != null && project.pathCroppedPic.isNotEmpty,
-						child: Padding(
-							padding: const EdgeInsets.all(8.0),
-							child: Image.file(File(project.pathCroppedPic)),
-						),
-					),*/
 				],
 			),
 		);
 	}
 
-	floatingActionButtons() {
-		// Icons.crop_free
-		// Use Stack
-		return FloatingActionButton(
-			onPressed: _rawImageSourcePicker,
-			tooltip: 'Take new picture',
-			child: const Icon(Icons.insert_photo), 
-	  	);
+	void selectedImageSource(ImageSource src) async {
+		File savedFile = await Picture.getImageFromSource(src);
+
+		// Image picker canceled
+		if (savedFile == null)
+			return;
+
+		if (project.pathRawPic.isNotEmpty)
+			File(project.pathRawPic).deleteSync();
+
+		setState(() {
+			project.pathRawPic = savedFile.path;
+		});
+
+		ProjectsDatabase.dao.updateProject(project);
+
+		cropRawImage().then((cropped) {
+			if(cropped)
+				measureCuts().then((_) => setState(() {}));
+		});
 	}
 
-	void _rawImageSourcePicker() async {
+	/*void _rawImageSourcePicker() async {
 
 		_fnTitle.unfocus();
 		_fnBrief.unfocus();
@@ -302,8 +321,10 @@ class ProjectPageState extends State<ProjectPage> {
 			},
 		);
 		
-		if (selection == null)
+		if (selection == null) {
+			setState(() {});
 			return;
+		}
 
 		File savedFile = await Picture.getImageFromSource(selection);
 
@@ -322,9 +343,11 @@ class ProjectPageState extends State<ProjectPage> {
 
 		cropRawImage().then((cropped) {
 			if(cropped)
-				measureCuts().then((_) => setState(() {}));
+				measureCuts();
+			else
+				setState(() {});
 		});
-	}
+	}*/
 
 	Future<bool> cropRawImage() async {
 
@@ -336,13 +359,16 @@ class ProjectPageState extends State<ProjectPage> {
 		if (result == null)
 			return false;
 
-		// Overwrite existing file
-		if (project.pathCroppedPic.isNotEmpty)
-			File(project.pathCroppedPic).deleteSync();
-
+		// Existing file overwritten
 		setState(() {
 			project.pathCroppedPic = result as String;
 		});
+
+		project.originX = null;
+		project.originX = null;
+		project.angle = null;
+		project.markers = null;
+		ProjectsDatabase.dao.updateProject(widget.project);
 
 		await ProjectsDatabase.dao.updateProject(project);
 
@@ -355,6 +381,8 @@ class ProjectPageState extends State<ProjectPage> {
 		await EditorBase.disposeEditorBase();
 		
 		await ProjectsDatabase.dao.updateProject(project);
+		
+		setState(() {});
 	}
 
 	Future<bool> _onBackPressed() async {
@@ -374,10 +402,253 @@ class ProjectPageState extends State<ProjectPage> {
 				appBar: AppBar(
 					title: Text(widget.title),
 				),
-				body: body(),
-				floatingActionButton: floatingActionButtons(),
+				body: Stack(
+					children: [
+						body(),
+						ProjectFloatingActionButton(),
+					]
+				),
+				resizeToAvoidBottomPadding: false,
 			), 
 			onWillPop: _onBackPressed,
+		);
+	}
+}
+
+class ProjectFloatingActionButton extends StatefulWidget {
+
+	ProjectFloatingActionButton();
+
+	@override
+	State<StatefulWidget> createState() => ProjectFloatingActionButtonState();
+}
+
+class ProjectFloatingActionButtonState extends State<ProjectFloatingActionButton> with SingleTickerProviderStateMixin {
+
+	ProjectPageState get parent => context.findAncestorStateOfType<ProjectPageState>();
+	
+	bool isOpened = false;
+  	AnimationController _animationController;
+	Animation<Color> _buttonColor;
+	AnimateIconController _animateIcon;
+	Animation<double> _translateButton;
+	Curve _curve = Curves.easeOut;
+	double _fabHeight = 56.0;
+
+	final Color _colorDisable = Colors.grey[600];
+	final Color _colorActive = Colors.blue;
+	final Color _colorDone = Colors.lightGreen[400];
+
+	@override
+	initState() {
+		
+		parent._fnTitle.addListener(() {
+			animate(forceClose: true);
+			_animateIcon.animateToStart();
+		});
+
+		parent._fnBrief.addListener(() {
+			animate(forceClose: true);
+			_animateIcon.animateToStart();
+		});
+
+		_animationController =
+			AnimationController(vsync: this, duration: Duration(milliseconds: 500))
+			..addListener(() {
+				setState(() {});
+			});
+		_animateIcon = AnimateIconController();
+
+		_translateButton = Tween<double>(
+			begin: _fabHeight,
+			end: -14.0,
+		).animate(CurvedAnimation(
+			parent: _animationController,
+			curve: Interval(
+				0.0,
+				0.75,
+				curve: _curve,
+			),
+		));
+
+		super.initState();
+	}
+
+	@override
+	dispose() {
+		_animationController.dispose();
+		super.dispose();
+	}
+
+	animate({bool forceClose = false}) {
+		if (forceClose) {
+			if(isOpened) {
+				_animateIcon.animateToStart();
+				_animationController.reverse();
+			}
+			isOpened = false;
+			return;
+		}
+		if (!isOpened) {
+			_animateIcon.animateToEnd();
+			_animationController.forward();
+		} else {
+			_animateIcon.animateToStart();
+			_animationController.reverse();
+		}
+		isOpened = !isOpened;
+	}
+
+	List<Widget> content() {
+		List<FloatingActionButton> fabs = <FloatingActionButton>[];
+		
+		// Description edit
+		fabs.add(FloatingActionButton(
+			child: Icon(Icons.photo_camera),
+			tooltip: "Take Picture", 
+			onPressed: () {
+				animate(forceClose: true);
+				_animateIcon.animateToStart();
+				parent.selectedImageSource(ImageSource.camera);
+			},
+			heroTag: 'editBrief',
+		));
+
+		// Pick Image
+		fabs.add(FloatingActionButton(
+			child: Icon(Icons.photo_library),
+			tooltip: "Pick from gallery", 
+			onPressed: () {
+				animate(forceClose: true);
+				_animateIcon.animateToStart();
+				parent.selectedImageSource(ImageSource.gallery);
+			},
+			heroTag: 'pickImage',
+		));
+
+		return List.generate(fabs.length, (index) => Transform(
+			transform: Matrix4.translationValues(
+				0.0,
+				_translateButton.value * (fabs.length - index),
+				0.0,
+			),
+			child: Visibility(
+				visible: !_translateButton.isDismissed,
+				child: Container(
+					child: fabs[index],
+				),
+			),
+		));
+	}
+	
+	Widget fab() {
+		_buttonColor = ColorTween(
+			begin: (parent.project.pathRawPic.isEmpty) ? _colorActive: _colorDone,
+			end: Colors.red,
+		).animate(CurvedAnimation(
+			parent: _animationController,
+				curve: Interval(
+					0.00,
+					1.00,
+					curve: Curves.linear,
+				),
+			)
+		);
+
+		return Container(
+			child: FloatingActionButton(
+				backgroundColor: _buttonColor.value,
+				onPressed: animate,
+				tooltip: 'Pick source',
+				child: AnimateIcons(
+					startIcon: Icons.image,
+					endIcon: Icons.close,
+					size: 24.0,
+					onStartIconPress: () {
+						animate();
+						return true;
+					},
+					onEndIconPress: () {
+						animate();
+						return true;
+					},
+					duration: Duration(milliseconds: 500),
+					color: Colors.white,
+					clockwise: false,
+					controller: _animateIcon,
+				),
+				heroTag: 'fab',
+			),
+		);
+	}
+
+	Widget cropFab({bool active = false, bool completed = false}) {
+		return Container(
+			child: FloatingActionButton(
+				onPressed: (active || completed) ? parent.cropRawImage : null,
+				tooltip: 'Crop image',
+				child: Icon(Icons.crop),
+				heroTag: 'crop',
+				elevation: 12,
+				backgroundColor: completed ? _colorDone : active ? _colorActive : _colorDisable,
+			),
+		);
+	}
+
+	Widget measureFab({bool active = false, bool completed = false}) {
+		return Container(
+			child: FloatingActionButton(
+				onPressed: (active || completed) ? parent.measureCuts : null,
+				tooltip: 'Measure key',
+				child: Icon(Icons.straighten),
+				heroTag: 'measure',
+				elevation: 12,
+				backgroundColor: completed ? _colorDone : active ? _colorActive : _colorDisable,
+			),
+		);
+	}
+
+	lineDiv({bool show = true}) {
+		if (!show)
+			return Container();
+		return Container(
+			height: _fabHeight, 
+			child: Center(
+				child: Container(
+				height: 5,
+				width: MediaQuery.of(context).size.width / 8,
+				decoration: BoxDecoration(borderRadius: BorderRadius.circular(2), color: Colors.blueGrey[800],),
+				),
+			),
+		);
+	}
+
+	@override
+	Widget build(BuildContext context) {
+		return Stack(
+			alignment: Alignment.bottomCenter,
+			children: [
+				Positioned(
+					width: MediaQuery.of(context).size.width,
+					bottom: 20,
+					child: Row(
+						crossAxisAlignment: CrossAxisAlignment.end,
+						mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+						mainAxisSize: MainAxisSize.min,
+						children: [
+							Column(
+								mainAxisAlignment: MainAxisAlignment.center,
+								crossAxisAlignment: CrossAxisAlignment.start,
+								children: content()..add(fab()),
+							),
+							lineDiv(show: true),
+							cropFab(active: parent.project.pathCroppedPic.isEmpty && parent.project.pathRawPic.isNotEmpty, completed: parent.project.pathCroppedPic.isNotEmpty),
+							lineDiv(show: true),
+							measureFab(active: parent.project.pathCroppedPic.isNotEmpty, completed: parent.project.markers != null)
+						],
+					),
+				)
+			],
 		);
 	}
 }
