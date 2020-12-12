@@ -225,8 +225,12 @@ class EditorBaseState extends State<EditorBase> {
 
 		if (_imageSize == Size.zero) {
 			var imageData = ImageData(ImageType.JPEG, widget.imageData);
-			var metadataReader = ImageMetadataReader(imageData);
-			var imageMetadata = metadataReader.read();
+			var imageMetadata = ImageMetadataReader(imageData).read();
+
+			if (imageMetadata == null) {
+				imageData = ImageData(ImageType.PNG, widget.imageData);
+				imageMetadata = ImageMetadataReader(imageData).read();
+			}
 
 			_imageSize = Size(imageMetadata.getImageWidth().toDouble(), imageMetadata.getImageHeight().toDouble());
 		}

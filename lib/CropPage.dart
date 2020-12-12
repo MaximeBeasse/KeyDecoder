@@ -66,10 +66,18 @@ class CropPageState extends State<CropPage> {
 			shapeNotifier.lineShapes.last.b = shapeNotifier.draggableShapes[1].center;
 		});
 
+		String header = String.fromCharCodes(widget.imageData);
+
+		ImageType it;
+
+		if (header.startsWith('.PNG....'))
+			it = ImageType.PNG;
+		else if (header.startsWith('ÿØÿ'))
+			it = ImageType.JPEG;
+
 		// Read Exif meta data to get image width and height
-		var imageData = ImageData(ImageType.JPEG, widget.imageData);
-		var metadataReader = ImageMetadataReader(imageData);
-  		var imageMetadata = metadataReader.read();
+		var imageData = ImageData(it, widget.imageData);
+		var imageMetadata = ImageMetadataReader(imageData).read();
 
 		imageSize = Size(imageMetadata.getImageWidth().toDouble(), imageMetadata.getImageHeight().toDouble());
 
@@ -163,30 +171,6 @@ class CropPageState extends State<CropPage> {
 				_canRemove = true;
 			});
 		}
-
-		print("A: ${shapeNotifier.draggableShapes[0].center}");
-		print("B: ${shapeNotifier.draggableShapes[1].center}");
-
-		if (shapeNotifier.draggableShapes.length > 2)
-			print("Origin: ${shapeNotifier.draggableShapes[2].center}");
-
-		/*shapeNotifier.miscellaneous.clear();
-
-		shapeNotifier.miscellaneous.add(Segment(
-			Offset(0, 0),
-			Offset(imageSize.width, imageSize.height),
-			Paint()..color = Colors.blue
-		));
-
-		shapeNotifier.miscellaneous.add(Segment(
-			Offset(0, imageSize.height),
-			Offset(imageSize.width, 0),
-			Paint()..color = Colors.red
-		));
-
-		List<Segment> seg = shapeNotifier.miscellaneous.cast<Segment>();
-
-		print("Corners: ${seg[0].a} / ${seg[1].b} / ${seg[0].b} / ${seg[1].a}");*/
 	}
 
 	void removeLine() {
@@ -294,8 +278,6 @@ class CropPageState extends State<CropPage> {
             dinter.bottomRight = dinter.bottomLeft;
             dinter.bottomLeft = tmp;
         }
-
-		print(dinter);
 
 		final resultPath = p.join(widget.imageFile.parent.path, 'crop_' + p.basenameWithoutExtension(widget.imageFile.path) + '.png');
 

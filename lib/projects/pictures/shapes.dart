@@ -353,8 +353,6 @@ class Crosshair extends Shape {
 			Color crossColor = Colors.blue[700];
 			
 			drawText(canvas, crossStr, crossColor, center, sign * ((sign < 0) ? (-size) : (-textPainter.width - size)), sign * ((sign < 0) ? (textPainter.height / 2) : (-textPainter.height / 2)), angle);
-
-
 		}
 	}
 }

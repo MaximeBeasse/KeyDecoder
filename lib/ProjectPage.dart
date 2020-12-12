@@ -124,9 +124,6 @@ class ProjectPageState extends State<ProjectPage> {
 				autofocus: false,
 				showCursor: true,
 				maxLines: 2,
-				// inputFormatters:[
-				// 	LengthLimitingTextInputFormatter(32),
-				// ],
 				controller: _descriptionController,
 				onChanged: (text) {
 					project.description = text;
@@ -226,9 +223,7 @@ class ProjectPageState extends State<ProjectPage> {
 									Builder(
 										builder: (ctxt) {
 											List<Offset> markers = fromBlob(project.markers);
-
-											// TODO separate axis and generate tables accordingly
-											if (markers.isNotEmpty)
+											if (markers.length >= 2)
 												return generateTableForAxis(markers.reversed.toList());
 											return Container();
 										},
@@ -258,102 +253,21 @@ class ProjectPageState extends State<ProjectPage> {
 
 		ProjectsDatabase.dao.updateProject(project);
 
-		cropRawImage().then((cropped) {
+		EditorBase.initEditorBase().then((_)
+			=> cropRawImage().then((cropped) {
 			if(cropped)
-				measureCuts().then((_) => setState(() {}));
-		});
-	}
-
-	/*void _rawImageSourcePicker() async {
-
-		_fnTitle.unfocus();
-		_fnBrief.unfocus();
-
-		// Choose raw image source
-		ImageSource selection = await showModalBottomSheet(
-			context: context,
-			enableDrag: true,
-			isScrollControlled: true,
-			builder: (BuildContext context) {
-				return Column(
-					mainAxisSize: MainAxisSize.min,
-					children: [
-						/**
-						 * Each ListTile should pop showModalBottomSheet with the return value
-						 */
-						ListTile(
-							leading: Icon(Icons.camera_alt),
-							title: Text('Take Picture from camera'),
-							onTap: () => Navigator.pop(context, ImageSource.camera),
-						),
-						ListTile(
-							leading: Icon(Icons.photo_library),
-							title: Text('Import from gallery'),
-							onTap: () => Navigator.pop(context, ImageSource.gallery),
-						),
-						Visibility(
-							visible: project.pathRawPic != null && project.pathRawPic.isNotEmpty,
-							child: ListTile(
-								leading: Icon(Icons.crop),
-								title: Text('Crop raw image'),
-								onTap: () {
-									cropRawImage().then((_) => Navigator.pop(context, null));
-								},
-							),
-						),
-						Visibility(
-							visible: project.pathCroppedPic != null && project.pathCroppedPic.isNotEmpty,
-							child: ListTile(
-								leading: Icon(Icons.straighten),
-								title: Text('Measure cuts'),
-								onTap: () {
-									measureCuts().then((_) => Navigator.pop(context, null));
-								},
-							),
-						),
-						ListTile(
-							leading: Icon(Icons.clear),
-							title: Text('Cancel'),
-							onTap: () => Navigator.pop(context, null),
-						)
-					],
-				);
-			},
-		);
-		
-		if (selection == null) {
-			setState(() {});
-			return;
-		}
-
-		File savedFile = await Picture.getImageFromSource(selection);
-
-		// Image picker canceled
-		if (savedFile == null)
-			return;
-
-		if (project.pathRawPic.isNotEmpty)
-			File(project.pathRawPic).deleteSync();
-
-		setState(() {
-			project.pathRawPic = savedFile.path;
-		});
-
-		ProjectsDatabase.dao.updateProject(project);
-
-		cropRawImage().then((cropped) {
-			if(cropped)
-				measureCuts();
+				measureCuts().then((_) {
+					EditorBase.disposeEditorBase();
+					setState(() {});
+				});
 			else
-				setState(() {});
-		});
-	}*/
+				EditorBase.disposeEditorBase();
+		}));
+	}
 
 	Future<bool> cropRawImage() async {
 
-		await EditorBase.initEditorBase();
 		final result = await Navigator.of(context).pushNamed(CropPage.routeName, arguments: File(project.pathRawPic));
-		await EditorBase.disposeEditorBase();
 
 		// Crop canceled
 		if (result == null)
@@ -376,9 +290,7 @@ class ProjectPageState extends State<ProjectPage> {
 	}
 
 	Future measureCuts() async {
-		await EditorBase.initEditorBase();
 		await Navigator.of(context).pushNamed(MeasurePage.routeName, arguments: project);
-		await EditorBase.disposeEditorBase();
 		
 		await ProjectsDatabase.dao.updateProject(project);
 		
@@ -585,7 +497,9 @@ class ProjectFloatingActionButtonState extends State<ProjectFloatingActionButton
 	Widget cropFab({bool active = false, bool completed = false}) {
 		return Container(
 			child: FloatingActionButton(
-				onPressed: (active || completed) ? parent.cropRawImage : null,
+				onPressed: (active || completed) ? () => EditorBase.initEditorBase()
+					.then((_) => parent.cropRawImage()
+						.then((_) => EditorBase.disposeEditorBase())) : null,
 				tooltip: 'Crop image',
 				child: Icon(Icons.crop),
 				heroTag: 'crop',
@@ -598,7 +512,9 @@ class ProjectFloatingActionButtonState extends State<ProjectFloatingActionButton
 	Widget measureFab({bool active = false, bool completed = false}) {
 		return Container(
 			child: FloatingActionButton(
-				onPressed: (active || completed) ? parent.measureCuts : null,
+				onPressed: (active || completed) ? () => EditorBase.initEditorBase()
+					.then((_) => parent.measureCuts()
+						.then((_) => EditorBase.disposeEditorBase())) : null,
 				tooltip: 'Measure key',
 				child: Icon(Icons.straighten),
 				heroTag: 'measure',

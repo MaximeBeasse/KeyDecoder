@@ -21,8 +21,6 @@ class Picture {
 		 * For now, we mv or cp to appdata
 		 * /!\ For [ImageSource.camera], src and dst are not on the same filesystem so `OS Error: Cross-device link, errno = 18` is thrown when mv)
 		 * Currently mv algorithm : create dst, cp src dst, rm src
-		 * 
-		 * TODO Replace all by Symilnk?
 		 */
 
 		// Retrieve image via selected source
