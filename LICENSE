@@ -50,14 +50,10 @@ those who use the Program to enhance the value of commercial products pay
 for the privilege of doing so.
 
 0. Subject Matter
-This License applies to the computer programs known as "AFPL Ghostscript",
-"AFPL Ghostscript PCL5e", "AFPL Ghostscript PCL5c", and "AFPL Ghostscript
-PXL".&nbsp; The "Program", below, refers to such program. The Program is
-a copyrighted work whose copyright is held by Artifex Software Inc., located
-in San Rafael California and artofcode LLC, located in Benicia, California
-(the "Licensor"). Please note that AFPL Ghostscript is neither the program
-known as "GNU Ghostscript" nor the version of Ghostscript available for
-commercial licensing from Artifex Software Inc.
+This License applies to the application know as "KeyDecoder", 
+an application designed to help decoding a machanical key code using a picture. 
+The "Program", below, refers to such application. The Program is a copyrighted 
+work whose copyright is held by AT Security SAS, located in Lyon, France (the "Licensor"). 
 
 A "work based on the Program" means either the Program or any derivative
 work of the Program, as defined in the United States Copyright Act of 1976,
