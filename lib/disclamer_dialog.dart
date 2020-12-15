@@ -31,7 +31,7 @@ The authors DO NOT ALLOW any users to sell keys created with the help of this ap
 			'content' : '''If you want to protect yourself from having your keys duplicated without your consent (with a picture, or by molding, or more simply by someone asking a locksmith to make a copy), you are invited to apply the same best practices to your keys as you do with your Credit Card or your Password. Just like credit cards and passwords, you must not lend your keys, or leave them unattended.'''
 		},
 		{
-			'title' : 'Have Fun, Stay Legal, Hide your keys.'
+			'title' : 'Have Fun, Stay Legal, \nHide your keys.'
 		}
 	];
 

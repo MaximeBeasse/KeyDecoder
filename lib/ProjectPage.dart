@@ -9,8 +9,6 @@ import 'package:image_picker/image_picker.dart' show ImageSource;
 import 'package:keydecoder/utils/gesture_x_detector.dart';
 import 'package:provider/provider.dart';
 
-import 'package:highlighter_coachmark/highlighter_coachmark.dart';
-
 import 'EditorBase.dart';
 import 'MeasurePage.dart';
 import 'projects/model/projects.dart';

@@ -28,7 +28,6 @@ dependencies:
   flutter_keyboard_visibility: ^4.0.2
   flutter_slidable: ^0.5.7
   fluttericon: ^1.0.7
-  highlighter_coachmark: ^0.0.3
   image_metadata: ^1.0.1
   image_picker: ^0.6.7+11
   image_size_getter: ^0.2.1
