@@ -7,7 +7,7 @@ From the picture of a key, one can measure its cuts easily.
 
 Developped by *Maxime BEASSE* and *Quentin CLEMENT*.
 
-Sponsored by [ATSecurity](https://ats1851.com/en/about/) and [CNS](https://www.esiea.fr/expertise-confiance-numerique-securite/) from [ESIEA](https://www.esiea.fr/).
+In partnership with [FrenchKey](http://intrusion.eu/) and [CNS](https://www.esiea.fr/expertise-confiance-numerique-securite/) from [ESIEA](https://www.esiea.fr/).
 
 Powered by [Flutter](https://flutter.dev) and [OpenCV (4.3.0)](https://opencv.org/)
 
