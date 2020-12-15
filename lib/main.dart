@@ -11,8 +11,6 @@ import 'MenuPage.dart';
 import 'projects/model/projects.dart';
 
 void main() {
-	//debugPaintPointersEnabled = true;
-	//debugPrintGestureArenaDiagnostics = true;
 	runApp(
 		MultiProvider(
 			providers: [
