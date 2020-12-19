@@ -1,5 +1,9 @@
 # KeyDecoder
 
+<p align="center">
+ <img src="assets/icon.png" height="200">
+</p>
+
 [![](https://i.imgur.com/A6VloCD.png)](https://ats1851.com/en/about/) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://i.imgur.com/LXuYEAa.png)](https://www.esiea.fr/expertise-confiance-numerique-securite/)
 
 **KeyDecoder** is a mobile app created for locksmiths and lockpicking ethusiats.
@@ -156,7 +160,8 @@ Additionnaly, the need for an ISO sized card as a dimensionnal reference prevent
 THE PROGRAM IS PROVIDED TO YOU "AS IS," WITHOUT WARRANTY. THERE IS NO WARRANTY FOR THE PROGRAM, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF THIRD PARTY RIGHTS. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
 
 # License
-TL;DR : 
+**TL;DR :**
+
 You ARE NOT ALLOWED to make money (directly or indirectly) by distributing this application, 
 its source code or a modification of them, or selling keys made with the help of this app. 
 Of course, you ARE NOT ALLOWED to perform any illegal activity using this application.

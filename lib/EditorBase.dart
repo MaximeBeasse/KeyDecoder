@@ -39,11 +39,7 @@ class ShapeNotifier extends ChangeNotifier {
 			if (element is Crosshair) {
 				if (element.textStyle?.fontSize != null)
 					element.textPainter.textScaleFactor /= scaleDelta;
-				// if (element.textStyle?.fontSize != null)
-				// 	element.textStyle = element.textStyle.copyWith(fontSize: element.textStyle.fontSize / scaleDelta);
 			}
-
-			// element.paint.strokeWidth = element.paint.strokeWidth / scaleDelta;
 
 		});
 	}
@@ -56,14 +52,9 @@ class ShapeNotifier extends ChangeNotifier {
 			if (element is Crosshair) {
 				element.paint.strokeWidth = Crosshair.strokeWidth / scale;
 				element.size = element.baseSize / scale;
-				// if (element.textStyle?.fontSize != null)
-				// 	element.textStyle = element.textStyle.copyWith(fontSize: Crosshair.basefontSize / scale);
-				// element.textPainter.textScaleFactor = scale;
 			}
 			else
 				element.paint?.strokeWidth = Shape.strokeWidth / scale;
-
-			//print("strokeWidth: ${element?.paint?.strokeWidth} scale: $scale");
 			
 		});
 	}
@@ -258,15 +249,9 @@ class EditorBaseState extends State<EditorBase> {
 		Offset globalZero = imageRenderBox.localToGlobal(Offset.zero, ancestor: ancestor);
 		Offset localZero = imageRenderBox.globalToLocal(Offset.zero, ancestor: ancestor);
 
-		// print("globalZero: $globalZero");
-		// print("localZero: $localZero");
-		// print("fromPortrait: $_fromPortrait");
-
 		if (_fromPortrait) {
 			if (widget.portrait) {
 				out = out.scale(-1, 1).translate(_mediaQuerySize.shortestSide, 0);
-				// if (matrix.isIdentity())
-				// 	out += globalZero;
 				out = imageRenderBox.globalToLocal(out, ancestor: ancestor);
 			} else {
 				localZero = invertOffset(imageRenderBox.globalToLocal(globalZero, ancestor: ancestor));
@@ -275,7 +260,6 @@ class EditorBaseState extends State<EditorBase> {
 				out = imageRenderBox.globalToLocal(out, ancestor: ancestor);
 			}
 		} else {
-			// Works for !_fromPortrait : DO NOT MODIFY
 			if (widget.portrait) {
 				localZero = Offset.zero;
 				out = out.scale(-1, 1).translate(_mediaQuerySize.shortestSide, 0);
@@ -348,13 +332,6 @@ class EditorBaseState extends State<EditorBase> {
 	}
 
 	void _onMoveEnd(int pointer, Offset localPos, Offset position) {
-		
-		// print('globalZero = ${imageRenderBox.localToGlobal(Offset.zero, ancestor: ancestor)}');
-		// print('localZero = ${imageRenderBox.globalToLocal(Offset.zero, ancestor: ancestor)}');
-		// print('localPos = $localPos');
-		// print('transformed = ${globalToLocal(localPos)}');
-		// print('');
-
 		setState(() {
 			_drag = null;
 		});
@@ -381,15 +358,7 @@ class EditorBaseState extends State<EditorBase> {
 				_fromPortrait = !widget.portrait;
 			}
 
-			print('imagePortrait: ${widget.portrait}');
-			print('devicePortrait: $_fromPortrait');
-
-			print("_mediaQuerySize: $_mediaQuerySize");
-			print("imageSize: $_imageSize");
-
 			_initScale = _mediaQuerySize.shortestSide / _imageSize.shortestSide;
-
-			print('_initScale: $_initScale');
 		}
 
 		Size imageSize = _imageSize;
@@ -439,10 +408,6 @@ class EditorBaseState extends State<EditorBase> {
 															else {
 																if (onInitialization != null) {
 																	SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-																		print('globalZero = ${imageRenderBox.localToGlobal(Offset.zero, ancestor: ancestor)}');
-																		print('localZero = ${imageRenderBox.globalToLocal(Offset.zero, ancestor: ancestor)}');
-																		print('');
-
 																		onInitialization();
 																		onInitialization = null;
 																	});

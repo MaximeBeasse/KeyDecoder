@@ -236,7 +236,7 @@ class CropPageState extends State<CropPage> {
 
 		List<Offset> intersections = [];
 
-		double pad = imageSize.height / 6;
+		double pad = imageSize.height / 10;
 
 		ui.Rect bounds = Offset(-pad, -pad) & Size(imageSize.width + 2 * pad, imageSize.height + 2 * pad);
 
