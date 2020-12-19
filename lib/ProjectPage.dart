@@ -69,7 +69,9 @@ class ProjectPageState extends State<ProjectPage> {
 
 		_fnFabs = FocusNode();
 
-		KeyboardVisibility.onChange.listen((bool visible) {
+		KeyboardVisibilityController kvc = KeyboardVisibilityController();
+		
+		kvc.onChange.listen((bool visible) {
 			if (!visible) {
 				_fnTitle?.unfocus();
 				_fnBrief?.unfocus();

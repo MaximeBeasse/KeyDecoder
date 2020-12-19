@@ -301,19 +301,53 @@ Additionnaly, the need for an ISO sized card as a dimensionnal reference prevent
 	}
 
 	void _showAbout() {
+		double txtscale = 0.8;
 		showAboutDialog(
 			context: context,
+			applicationIcon: Image(
+				image: AssetImage('assets/icon.png'),
+				color: null, 
+				width: MediaQuery.of(context).size.width / 8, 
+				height: MediaQuery.of(context).size.width / 8,
+				fit: BoxFit.scaleDown,
+			),
+			applicationVersion: "v1.0",
+			applicationLegalese: "© AT Security SAS",
 			children: [
-				Text("App developped by :",),
-				Text("BEASSE Maxime", textAlign: TextAlign.center,),
-				Text("CLEMENT Quentin", textAlign: TextAlign.center,),
-				Text("\n\nIn partnership with FrenchKey\n"),
+				Text("\nApp developped by :", textScaleFactor: txtscale),
+				Text("BEASSE Maxime", textAlign: TextAlign.center, textScaleFactor: txtscale),
+				Center(
+					child: InkWell(
+						onTap: () {
+							canLaunch('https://twitter.com/maxime_beasse').then((canLaunch) => (canLaunch) ? launch('https://twitter.com/maxime_beasse') : null);
+						},
+						child: Text("@maxime_beasse", style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline,), textScaleFactor: txtscale)
+					),
+				),
+				Text("\n", textScaleFactor: txtscale/4,),
+				Text("CLEMENT Quentin", textAlign: TextAlign.center, textScaleFactor: txtscale,),
+				Center(
+					child: InkWell(
+						onTap: () {
+							canLaunch('https://twitter.com/0x2f2f').then((canLaunch) => (canLaunch) ? launch('https://twitter.com/0x2f2f') : null);
+						},
+						child: Text("@0x2f2f", style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline,), textScaleFactor: txtscale),
+					),
+				),
+				Text("\n\n", textScaleFactor: txtscale/4),
+				InkWell(
+					onTap: () {
+						canLaunch('https://github.com/MaximeBeasse/KeyDecoder').then((canLaunch) => (canLaunch) ? launch('https://github.com/MaximeBeasse/KeyDecoder') : null);
+					},
+					child: Text("GitHub Repository", style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline,), textScaleFactor: txtscale),
+				),
+				Text("\n\nIn partnership with FrenchKey ", textScaleFactor: txtscale),
 				Center(
 					child: InkWell(
 						onTap: () {
 							canLaunch('https://twitter.com/frenchkey_fr').then((canLaunch) => (canLaunch) ? launch('https://twitter.com/frenchkey_fr') : null);
 						},
-						child: Text("@FrenchKey_fr", style: TextStyle(color: Colors.blue),),
+						child: Text("@FrenchKey_fr", style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline,), textScaleFactor: txtscale),
 					),
 				),
 			]

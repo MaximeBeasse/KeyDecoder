@@ -1,6 +1,14 @@
 # KeyDecoder
 
-[![](https://i.imgur.com/A6VloCD.png)](https://ats1851.com/en/about/) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://i.imgur.com/LXuYEAa.png)](https://www.esiea.fr/expertise-confiance-numerique-securite/)
+<p align="center">
+ <img src="assets/icon.png" height="100">
+ <a href="https://www.ats1851.com/">
+   <img src="https://i.imgur.com/A6VloCD.png" height="100">
+ </a>
+ <a href="https://www.esiea.fr/expertise-confiance-numerique-securite/">
+   <img src="https://i.imgur.com/LXuYEAa.png" height="100">
+ </a>
+</p>
 
 **KeyDecoder** is a mobile app created for locksmiths and lockpicking ethusiats.
 From the picture of a key, one can measure its cuts easily.
