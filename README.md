@@ -84,7 +84,7 @@ opencv.sdk=<OpenCV Android SDK path>
 
 ## Releases
 
-The most recent builds can be found in the repository [Releases](https://github.com/MaximeBeasse/AppKeyDecoder/releases).
+The most recent builds can be found in the [Play Store](https://play.google.com/store).
 
 # Usage
 
