@@ -152,20 +152,6 @@ class Line extends Shape {
 		}
 
 		return intersections;
-		// TODO 
-		/*if ((((mAngle - other.mAngle) % pi) + pi) % pi == 0) return null;
-		if (((mAngle % pi) + pi) % pi == pi/2.0) {
-				// vertical line at x = a.dx
-				return Offset(a.dx, tan(other.mAngle) * (a.dx-other.a.dx) + other.a.dy);
-			}
-			else if (((other.mAngle % pi) + pi) % pi == pi/2.0) {
-				// vertical line at x = a.dx
-				return Offset(other.a.dx, tan(mAngle) * (other.a.dx-a.dx) + a.dy);
-			}
-			var m0 = tan(mAngle); // Line 0: y = m0 (x - a.dx) + a.dy
-			var m1 = tan(other.mAngle); // Line 1: y = m1 (x - other.a.dx) + other.a.dy
-			var x = ((m0 * a.dx - m1 * other.a.dx) - (a.dy - other.a.dy)) / (m0 - m1);
-			return Offset(x, m0 * (x - a.dx) + a.dy);*/
 	}
 
 	@override

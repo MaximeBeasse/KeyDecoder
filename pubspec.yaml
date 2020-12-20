@@ -3,7 +3,7 @@ description: A key decoding app that lets you decode your key from a picture.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -28,7 +28,7 @@ dependencies:
   flutter_keyboard_visibility: ^4.0.2
   flutter_slidable: ^0.5.7
   fluttericon: ^1.0.7
-  image_metadata: ^1.0.1
+  image: ^2.1.19
   image_picker: ^0.6.7+11
   image_size_getter: ^0.2.1
   material_design_icons_flutter: ^4.0.5755
@@ -46,9 +46,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner: ^1.10.2 # https://pub.dev/packages/build_runner
+  flutter_launcher_icons: ^0.8.0
 
   moor_generator: ^3.3.1 # https://pub.dev/packages/moor_generator
-  flutter_launcher_icons: ^0.8.0
 
 flutter_icons:
   android: true
@@ -59,7 +59,6 @@ flutter_icons:
 # following page: https://dart.dev/tools/pub/pubspec
 # The following section is specific to Flutter.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

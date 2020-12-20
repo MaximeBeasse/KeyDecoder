@@ -5,7 +5,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:image_metadata/image_metadata.dart';
 import 'package:image_size_getter/image_size_getter.dart' hide Size;
 import 'package:moor_flutter/moor_flutter.dart';
 import 'package:provider/provider.dart';
@@ -213,18 +212,6 @@ class EditorBaseState extends State<EditorBase> {
 
 		final tmp = ImageSizeGetter.getSize(MemoryInput(widget.imageData));
 		_imageSize = Size(tmp.width.toDouble(), tmp.height.toDouble());
-
-		if (_imageSize == Size.zero) {
-			var imageData = ImageData(ImageType.JPEG, widget.imageData);
-			var imageMetadata = ImageMetadataReader(imageData).read();
-
-			if (imageMetadata == null) {
-				imageData = ImageData(ImageType.PNG, widget.imageData);
-				imageMetadata = ImageMetadataReader(imageData).read();
-			}
-
-			_imageSize = Size(imageMetadata.getImageWidth().toDouble(), imageMetadata.getImageHeight().toDouble());
-		}
 
 		if(widget.portrait)
 			_imageSize = _imageSize.flipped;

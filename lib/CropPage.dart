@@ -2,11 +2,11 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:image_metadata/image_metadata.dart';
 import 'EditorBase.dart';
 import 'projects/pictures/shapes.dart';
 import 'native_cv/native_cv.dart';
 import 'dart:ui' as ui;
+import 'package:image/image.dart' as img;
 
 import 'package:path/path.dart' as p;
 import 'utils/utils.dart';
@@ -66,38 +66,27 @@ class CropPageState extends State<CropPage> {
 			shapeNotifier.lineShapes.last.b = shapeNotifier.draggableShapes[1].center;
 		});
 
-		String header = String.fromCharCodes(widget.imageData);
+		img.Image image = img.decodeImage(widget.imageData);
 
-		ImageType it;
+		imageSize = Size(image.width.toDouble(), image.height.toDouble());
 
-		if (header.startsWith('.PNG....'))
-			it = ImageType.PNG;
-		else if (header.startsWith('ÿØÿ'))
-			it = ImageType.JPEG;
-
-		// Read Exif meta data to get image width and height
-		var imageData = ImageData(it, widget.imageData);
-		var imageMetadata = ImageMetadataReader(imageData).read();
-
-		imageSize = Size(imageMetadata.getImageWidth().toDouble(), imageMetadata.getImageHeight().toDouble());
-
-		final orientation = imageMetadata.getImageOrientation();
+		final orientation = (image.exif.hasOrientation) ? image.exif.orientation : 1;
 
 		switch (orientation) {
-			case ImageOrientation.ORIENTATION_0:
-			case ImageOrientation.ORIENTATION_0_FLIP:
+			case 1:
+			case 2:
 				_portrait = false;
 				break;
-			case ImageOrientation.ORIENTATION_180:
-			case ImageOrientation.ORIENTATION_180_FLIP:
+			case 3:
+			case 4:
 				_portrait = false;
 				break;
-			case ImageOrientation.ORIENTATION_270:
-			case ImageOrientation.ORIENTATION_270_FLIP:
+			case 5:
+			case 6:
 				_portrait = true;
 				break;
-			case ImageOrientation.ORIENTATION_90:
-			case ImageOrientation.ORIENTATION_90_FLIP:
+			case 7:
+			case 8:
 				_portrait = true;
 				break;
 		}
@@ -141,8 +130,6 @@ class CropPageState extends State<CropPage> {
 			_editorBaseState.globalToLocal(Offset(longestSide * 3/4, shortestSide * 1/2)),
 			_cropPaint
 		);
-
-		print('NewLine: $newLine');
 
 		shapeNotifier.lineShapes.add(newLine);
 
