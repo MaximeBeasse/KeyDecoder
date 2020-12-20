@@ -6,8 +6,8 @@
 
 [![](https://i.imgur.com/A6VloCD.png)](https://ats1851.com/en/about/) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://i.imgur.com/LXuYEAa.png)](https://www.esiea.fr/expertise-confiance-numerique-securite/)
 
-**KeyDecoder** is a mobile app created for locksmiths and lockpicking ethusiats.
-From the picture of a key, one can measure its cuts easily.
+**KeyDecoder** is a mobile app created for pentesters and security enthusiasts.
+From the picture of a key, one can measure its bitting easily.
 
 Developped by *Maxime BEASSE* and *Quentin CLEMENT*.
 
