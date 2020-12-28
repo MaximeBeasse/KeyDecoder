@@ -30,7 +30,6 @@ dependencies:
   fluttericon: ^1.0.7
   image: ^2.1.19
   image_picker: ^0.6.7+11
-  image_size_getter: ^0.2.1
   material_design_icons_flutter: ^4.0.5755
   matrix4_transform: ^1.1.5
   moor_flutter: ^3.1.0

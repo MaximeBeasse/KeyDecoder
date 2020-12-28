@@ -296,13 +296,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.0"
-  hashcodes:
-    dependency: transitive
-    description:
-      name: hashcodes
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.0"
   http:
     dependency: transitive
     description:
@@ -345,13 +338,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.1"
-  image_size_getter:
-    dependency: "direct main"
-    description:
-      name: image_size_getter
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.2.1"
   intl:
     dependency: transitive
     description:

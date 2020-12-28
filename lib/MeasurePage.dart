@@ -6,9 +6,9 @@ import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:fluttericon/entypo_icons.dart';
-import 'package:image_size_getter/image_size_getter.dart' as size_getter;
 import 'package:keydecoder/projects/model/projects.dart';
 import 'EditorBase.dart';
+import 'package:image/image.dart' as img;
 import 'projects/pictures/shapes.dart' hide Rect;
 
 import 'utils/gesture_x_detector.dart';
@@ -86,8 +86,8 @@ class MeasurePageState extends State<MeasurePage> {
 
 		_imageData = File(widget.project.pathCroppedPic).readAsBytesSync();
 
-		size_getter.Size tmp = size_getter.ImageSizeGetter.getSize(size_getter.MemoryInput(_imageData));
-		imageSize = Size(tmp.width.toDouble(), tmp.height.toDouble());
+		img.Image image = img.decodeImage(_imageData);
+		imageSize = Size(image.width.toDouble(), image.height.toDouble());
 
 		super.initState();
 

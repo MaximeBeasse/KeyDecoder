@@ -3,14 +3,13 @@ import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:image_size_getter/image_size_getter.dart' hide Size;
 import 'package:moor_flutter/moor_flutter.dart';
 import 'package:provider/provider.dart';
 import 'projects/pictures/shapes.dart';
 import 'utils/gesture_x_detector.dart';
 import 'utils/utils.dart';
+import 'package:image/image.dart' as img;
 import 'package:vector_math/vector_math_64.dart' hide Colors;
 import 'dart:math';
 
@@ -110,7 +109,7 @@ class EditorBase extends StatefulWidget {
 		this.portrait = false,
 		this.onInitialization,
 		this.onRotation,
-		this.onTap
+		this.onTap,
 	}) : super(key: key);
 
 	EditorBase.fromFile({
@@ -210,8 +209,8 @@ class EditorBaseState extends State<EditorBase> {
 	@override
 	void initState() {
 
-		final tmp = ImageSizeGetter.getSize(MemoryInput(widget.imageData));
-		_imageSize = Size(tmp.width.toDouble(), tmp.height.toDouble());
+		img.Image image = img.decodeImage(widget.imageData);
+		_imageSize = Size(image.width.toDouble(), image.height.toDouble());
 
 		if(widget.portrait)
 			_imageSize = _imageSize.flipped;
@@ -394,7 +393,7 @@ class EditorBaseState extends State<EditorBase> {
 																);
 															else {
 																if (onInitialization != null) {
-																	SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+																	WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
 																		onInitialization();
 																		onInitialization = null;
 																	});
