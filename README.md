@@ -9,7 +9,7 @@
 **KeyDecoder** is a mobile app created for pentesters and security enthusiasts.
 From the picture of a key, one can measure its bitting easily.
 
-Developped by *Maxime BEASSE* and *Quentin CLEMENT*.
+Developped by [*Maxime BEASSE*](https://twitter.com/maxime_beasse) and [*Quentin CLEMENT*](https://twitter.com/0x2f2f).
 
 In partnership with [FrenchKey](https://intrusion.eu/en/home/) and [CNS](https://www.esiea.fr/expertise-confiance-numerique-securite/) from [ESIEA](https://www.esiea.fr/).
 
