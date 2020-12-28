@@ -15,6 +15,10 @@ In partnership with [FrenchKey](https://intrusion.eu/en/home/) and [CNS](https:/
 
 Powered by [Flutter](https://flutter.dev) and [OpenCV (4.3.0)](https://opencv.org/)
 
+<p align="center">
+ <img src="https://lh3.googleusercontent.com/A_Xf4iP53YZ1-LiREhA-F8Zc60vKMGVieNlORz-UP--VNtGgTxQK03jlxDfWUi2SqHc">
+</p>
+
 # Summary
 
 <!--ts-->
@@ -61,6 +65,10 @@ If you want to protect yourself from having your keys duplicated without your co
 
 # Installation
 
+[<img src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png"
+      alt="Get it on Google Play"
+      height="70">](https://play.google.com/store/apps/details?id=com.keydecoder)
+
 ## Build
 
 * Download [Flutter SDK](https://flutter.dev/docs/get-started/install)
@@ -91,7 +99,7 @@ The most recent builds can be found in the repository [Releases](https://github.
 ## Take Picture
 
 Take a picture of a key, removed from its key ring, and place in the middle of an ISO/CEI 7810 ID-1 sized card (credit card, business card...). 
-It is very important that the card measures exactly 85,60 by 53,98 mm.
+It is very important that the card measures exactly 85,60 by 53,98 mm (3 3⁄8 in × 2 1⁄8 in).
 
 <p align="center">
  <img src="assets/card_key.png" width="400">
