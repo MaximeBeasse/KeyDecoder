@@ -27,7 +27,7 @@ class _TutorialDialogState extends State<TutorialDialog> {
 				mainAxisSize: MainAxisSize.min,
 				children: [
 					Text("""Take a picture of a key, removed from its key ring, and place in the middle of an ISO/CEI 7810 ID-1 sized card (credit card, business card...). 
-It is very important that the card measures exactly 85,60 by 53,98 mm.
+It is very important that the card measures exactly 85,60 by 53,98 mm (3 3⁄8 in × 2 1⁄8 in).
 """, textAlign: TextAlign.justify,),
 					Image.asset('assets/card_key.png'),
 					Text("\nA well lightened and high res picture will give better results.", textAlign: TextAlign.justify,),
