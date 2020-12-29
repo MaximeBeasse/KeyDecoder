@@ -44,13 +44,13 @@ Powered by [Flutter](https://flutter.dev) and [OpenCV (4.3.0)](https://opencv.or
 
 ## Making keys without consent is illegal.
 
-This Key Decoding application is only meant for legal use. If you have unlawful intentions, your are not allowed to used this application.
+This Key Decoding application is only meant for legal use. If you have unlawful intentions, you're are not allowed to use this application.
 To limit the risk of illegal use, an ISO sized card is necessary to decode a mechanical key, and the key must be taken off from its keyring.
 We will provide no help nor assistance to any user that we believe is willing to commit a crime or a felony. 
 
 ## Educational and Consulting use only.
 
-This Key Decoding app is meant to be used by Pentesters during their audits, to explain their clients how easily a criminal can duplicate keys (from picture, by molding or simply by asking a local locksmith to make a duplicate). Fair use is allowed if used by security enthusiasts, to assess their own security, and discover the difficulty of making keys only using a picture. 
+This Key Decoding app is meant to be used by Pentesters during their audits, to explain to their clients how easily a criminal can duplicate keys (from picture, by molding, or simply by asking a local locksmith to make a duplicate). Fair use is allowed if used by security enthusiasts, to assess their own security, and discover the difficulty of making keys only using a picture. 
 The authors DO NOT ALLOW any users to sell keys created with the help of this app. Rulebreakers are subject to lawsuit.
 
 ## Security advice.
