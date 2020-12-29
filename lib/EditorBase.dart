@@ -212,7 +212,7 @@ class EditorBaseState extends State<EditorBase> {
 		img.Image image = img.decodeImage(widget.imageData);
 		_imageSize = Size(image.width.toDouble(), image.height.toDouble());
 
-		if(widget.portrait)
+		if(widget.portrait && _imageSize.width > _imageSize.height)
 			_imageSize = _imageSize.flipped;
 
 		onInitialization = widget.onInitialization;

@@ -94,8 +94,7 @@ class CropPageState extends State<CropPage> {
 		if(imageSize.width < imageSize.height && !_portrait) {
 			_portrait = true;
 		}
-
-		if (_portrait)
+		else if (_portrait)
 			imageSize = imageSize.flipped;
 
 		super.initState();
@@ -136,6 +135,7 @@ class CropPageState extends State<CropPage> {
 		if(shapeNotifier.draggableShapes.length >= 2) {
 			shapeNotifier.draggableShapes[0].center = newLine.a;
 			shapeNotifier.draggableShapes[1].center = newLine.b;
+			
 		} else {
 			shapeNotifier.draggableShapes.clear();
 			shapeNotifier.draggableShapes.add(Circle(newLine.a, EditorBase.touchRadius / scaleFactor, _cropPaint));
