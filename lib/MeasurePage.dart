@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:fluttericon/entypo_icons.dart';
 import 'package:keydecoder/projects/model/projects.dart';
+import 'package:drift/drift.dart' as drift;
 import 'EditorBase.dart';
 import 'package:image/image.dart' as img;
 import 'projects/pictures/shapes.dart' hide Rect;
@@ -21,7 +22,7 @@ class MeasurePage extends StatefulWidget {
 	final Project project;
 
 	static const routeName = '/measure';
-	static Route<dynamic> route(Object args) {
+	static Route<dynamic> route(Object? args) {
 		return MaterialPageRoute(
             builder: (BuildContext context) {
 				if (args is Project)
@@ -39,37 +40,39 @@ class MeasurePageState extends State<MeasurePage> {
 
 	GlobalKey editorKey = GlobalKey();
 
-	ShapeNotifier shapeNotifier;
+	ShapeNotifier shapeNotifier = ShapeNotifier();
 
 	bool _canAdd = true;
 	bool _canRemove = false;
 	bool _canAccept = false;
 
-	Size imageSize;
+	late Size imageSize;
 
-	Uint8List _imageData;
+	late Uint8List _imageData;
 
 	final ValueNotifier<int> _currentStep = ValueNotifier<int>(0);
 	int _curStep = 0;
 
-	Matrix4 _subMatrix;
+	late Matrix4 _subMatrix;
 	double _baseAngle = 0.0;
-	double _mAngle;
+	double? _mAngle;
 
 	List<Offset> _markers = List<Offset>.empty(growable: true);
 
 	final Color _colorDisable = Color(0xFFe0f2f1);
-	final Color _colorActive = Colors.lightBlue[400];
-	final Color _colorDone = Colors.lightGreen[400];
+	final Color _colorActive = Colors.lightBlue.shade400;
+	final Color _colorDone = Colors.lightGreen.shade400;
+  
+  late Project curProject;
 
-	EditorBaseState get _editorBaseState => (editorKey.currentState as EditorBaseState);
+	EditorBaseState? get _editorBaseState => (editorKey.currentState as EditorBaseState?);
 
 	String _coordinates = '';
 
 	@override
 	void initState() {
 		
-		shapeNotifier = ShapeNotifier();
+    curProject = widget.project;
 		
 		// Snaps daggrable circles to current line
 		shapeNotifier.addListener(() {
@@ -84,10 +87,10 @@ class MeasurePageState extends State<MeasurePage> {
 				shapeNotifier.lineShapes.last.b = shapeNotifier.draggableShapes[1].center;
 		});
 
-		_imageData = File(widget.project.pathCroppedPic).readAsBytesSync();
+		_imageData = File(curProject.pathCroppedPic).readAsBytesSync();
 
-		img.Image image = img.decodeImage(_imageData);
-		imageSize = Size(image.width.toDouble(), image.height.toDouble());
+		img.Image? image = img.decodeImage(_imageData);
+		imageSize = Size(image!.width.toDouble(), image.height.toDouble());
 
 		super.initState();
 
@@ -115,13 +118,13 @@ class MeasurePageState extends State<MeasurePage> {
 
 	void initStep() {
 
-		if (widget.project.markers == null)
+		if (curProject.markers == null)
 			return;
 
-		_mAngle = _baseAngle + widget.project.angle;
-		Offset origin = Offset(widget.project.originX, widget.project.originY);
+		_mAngle = _baseAngle + curProject.angle!;
+		Offset origin = Offset(curProject.originX!, curProject.originY!);
 
-		double angle = _mAngle - _baseAngle;
+		double angle = _mAngle! - _baseAngle;
 		angle = (angle < -pi) ? angle + 2*pi: angle;
 		angle = (angle > pi) ? angle - 2*pi: angle;
 
@@ -131,19 +134,19 @@ class MeasurePageState extends State<MeasurePage> {
 		shapeNotifier.draggableShapes.clear();
 
 		final Paint _mainAxisPaint = Paint()
-			..color = Colors.red[600]
-			..strokeWidth = EditorBase.strokeWidth / _editorBaseState.scaleFactor
+			..color = Colors.red.shade600
+			..strokeWidth = EditorBase.strokeWidth / _editorBaseState!.scaleFactor!
 			..style = PaintingStyle.stroke;
 
 		Line mainAxis = Line.fromAngle(
 			origin,
-			_mAngle,
+			_mAngle!,
 			_mainAxisPaint
 		);
 
 		final Paint _crossAxisPaint = Paint()
-			..color = Colors.blue[600]
-			..strokeWidth = EditorBase.strokeWidth / _editorBaseState.scaleFactor
+			..color = Colors.blue.shade600
+			..strokeWidth = EditorBase.strokeWidth / _editorBaseState!.scaleFactor!
 			..style = PaintingStyle.stroke;
 
 		Line crossAxis = Line.perpendicular(
@@ -157,15 +160,15 @@ class MeasurePageState extends State<MeasurePage> {
 
 		shapeNotifier.markers.clear();
 
-		_markers = fromBlob(widget.project.markers);
+		_markers = fromBlob(curProject.markers!);
 		_markers.forEach((center) {
 			addMarker(center);
 		});
 
 		shapeNotifier.addListener(() {
-			Offset coords = _editorBaseState.globalToLocal(MediaQuery.of(context).size.center(Offset.zero));
+			Offset coords = _editorBaseState!.globalToLocal(MediaQuery.of(context).size.center(Offset.zero));
 			coords = transformOffset(Matrix4.inverted(_subMatrix), coords);
-			coords = Offset(_editorBaseState.px2mm(coords.dx), _editorBaseState.px2mm(coords.dy));
+			coords = Offset(_editorBaseState!.px2mm(coords.dx), _editorBaseState!.px2mm(coords.dy));
 			setState(() {
 				_coordinates = "${coords.dx.toStringAsFixed(3)}, ${coords.dy.toStringAsFixed(3)}";
 			}); 
@@ -185,14 +188,16 @@ class MeasurePageState extends State<MeasurePage> {
 
 	void nextStep() {
 		switch (_curStep) {
-			case 3:
-				Navigator.of(context).pop();
+			case 3: 
+        updateDB().then((_) {
+				  Navigator.of(context).pop();
+        });
 				break;
 			case 2:
 
 				shapeNotifier.draggableShapes.clear();
 
-				shapeNotifier.lineShapes[1].b = shapeNotifier.lineShapes[0].xtersect(shapeNotifier.lineShapes[1]);
+				shapeNotifier.lineShapes[1].b = shapeNotifier.lineShapes[0].xtersect(shapeNotifier.lineShapes[1])!;
 				Offset origin = shapeNotifier.lineShapes[1].b;
 
 				setState(() {
@@ -202,23 +207,25 @@ class MeasurePageState extends State<MeasurePage> {
 					_canAccept = true;
 				});
 
-				widget.project.originX = origin.dx;
-				widget.project.originY = origin.dy;
-				widget.project.angle = shapeNotifier.lineShapes[0].mAngle;
-				widget.project.isoRatio = _editorBaseState.isoRatio;
+        curProject = curProject.copyWith(
+          originX: drift.Value(origin.dx),
+          originY: drift.Value(origin.dy),
+          angle: drift.Value(shapeNotifier.lineShapes[0].mAngle),
+          isoRatio: drift.Value(_editorBaseState!.isoRatio)
+        );
 
-				ProjectsDatabase.dao.updateProject(widget.project);
+				ProjectsDatabase.dao.updateProject(curProject);
 				
-				double angle = _mAngle - _baseAngle;
+				double angle = _mAngle! - _baseAngle;
 				angle = (angle < -pi) ? angle + 2*pi: angle;
 				angle = (angle > pi) ? angle - 2*pi: angle;
 
 				_subMatrix = Matrix4.translationValues(origin.dx, origin.dy, 0.0)..rotateZ(angle);
 
 				shapeNotifier.addListener(() {
-					Offset coords = _editorBaseState.globalToLocal(MediaQuery.of(context).size.center(Offset.zero));
+					Offset coords = _editorBaseState!.globalToLocal(MediaQuery.of(context).size.center(Offset.zero));
 					coords = transformOffset(Matrix4.inverted(_subMatrix), coords);
-					coords = Offset(_editorBaseState.px2mm(coords.dx), _editorBaseState.px2mm(coords.dy));
+					coords = Offset(_editorBaseState!.px2mm(coords.dx), _editorBaseState!.px2mm(coords.dy));
 					setState(() {
 						_coordinates = "${coords.dx.toStringAsFixed(3)}, ${coords.dy.toStringAsFixed(3)}";
 					}); 
@@ -232,19 +239,19 @@ class MeasurePageState extends State<MeasurePage> {
 				}
 
 				final Paint _crossAxisPaint = Paint()
-					..color = Colors.blue[600]
-					..strokeWidth = EditorBase.strokeWidth / _editorBaseState.scaleFactor
+					..color = Colors.blue.shade600
+					..strokeWidth = EditorBase.strokeWidth / _editorBaseState!.scaleFactor!
 					..style = PaintingStyle.stroke;
 
 				Line crossAxis = Line.perpendicular(shapeNotifier.lineShapes.first,
-					_editorBaseState.globalToLocal(MediaQuery.of(context).size.center(Offset.zero)),
+					_editorBaseState!.globalToLocal(MediaQuery.of(context).size.center(Offset.zero)),
 					_crossAxisPaint
 				);
 
 				shapeNotifier.lineShapes.add(crossAxis);
 
 				shapeNotifier.draggableShapes.clear();
-				shapeNotifier.draggableShapes.add(Circle(crossAxis.a, EditorBase.touchRadius / _editorBaseState.scaleFactor, _crossAxisPaint));
+				shapeNotifier.draggableShapes.add(Circle(crossAxis.a, EditorBase.touchRadius / _editorBaseState!.scaleFactor!, _crossAxisPaint));
 
 				setState(() {
 					_canAdd = true;
@@ -260,18 +267,18 @@ class MeasurePageState extends State<MeasurePage> {
 				double longestSide = mediaSize.longestSide;
 				double shortestSide = mediaSize.shortestSide;
 
-				double scaleFactor = _editorBaseState.scaleFactor;
+				double scaleFactor = _editorBaseState!.scaleFactor!;
 
 				final Paint _mainAxisPaint = Paint()
-					..color = Colors.red[600]
-					..strokeWidth = EditorBase.strokeWidth / _editorBaseState.scaleFactor
+					..color = Colors.red.shade600
+					..strokeWidth = EditorBase.strokeWidth / _editorBaseState!.scaleFactor!
 					..style = PaintingStyle.stroke;
 
 				if (shapeNotifier.lineShapes.isEmpty) {
 
 					Line mainAxis = Line(
-						_editorBaseState.globalToLocal(Offset(longestSide * 1/4, shortestSide * 1/2)),
-						_editorBaseState.globalToLocal(Offset(longestSide * 3/4, shortestSide * 1/2)),
+						_editorBaseState!.globalToLocal(Offset(longestSide * 1/4, shortestSide * 1/2)),
+						_editorBaseState!.globalToLocal(Offset(longestSide * 3/4, shortestSide * 1/2)),
 						_mainAxisPaint
 					);
 
@@ -305,11 +312,13 @@ class MeasurePageState extends State<MeasurePage> {
 		switch (_curStep) {
 			case 1:
 
-				widget.project.originX = null;
-				widget.project.originX = null;
-				widget.project.angle = null;
-				widget.project.markers = null;
-				ProjectsDatabase.dao.updateProject(widget.project);
+				curProject = curProject.copyWith(
+          originX: drift.Value(null),
+          originY: drift.Value(null),
+          angle: drift.Value(null),
+          markers: drift.Value(null),
+        );
+				ProjectsDatabase.dao.updateProject(curProject);
 
 				shapeNotifier.markers.clear();
 				_markers.clear();
@@ -317,8 +326,8 @@ class MeasurePageState extends State<MeasurePage> {
 				_mAngle = null;
 
 				final Paint _crossAxisPaint = Paint()
-					..color = Colors.blue[600]
-					..strokeWidth = EditorBase.strokeWidth / _editorBaseState.scaleFactor
+					..color = Colors.blue.shade600
+					..strokeWidth = EditorBase.strokeWidth / _editorBaseState!.scaleFactor!
 					..style = PaintingStyle.stroke;
 
 				Line crossAxis = shapeNotifier.lineShapes[1];
@@ -326,7 +335,7 @@ class MeasurePageState extends State<MeasurePage> {
 				shapeNotifier.lineShapes.add(crossAxis);
 
 				shapeNotifier.draggableShapes.clear();
-				shapeNotifier.draggableShapes.add(Circle(crossAxis.a, EditorBase.touchRadius / _editorBaseState.scaleFactor, _crossAxisPaint));
+				shapeNotifier.draggableShapes.add(Circle(crossAxis.a, EditorBase.touchRadius / _editorBaseState!.scaleFactor!, _crossAxisPaint));
 
 				setState(() {
 					_canAdd = true;
@@ -342,18 +351,18 @@ class MeasurePageState extends State<MeasurePage> {
 				double longestSide = mediaSize.longestSide;
 				double shortestSide = mediaSize.shortestSide;
 
-				double scaleFactor = _editorBaseState.scaleFactor;
+				double scaleFactor = _editorBaseState!.scaleFactor!;
 
 				final Paint _mainAxisPaint = Paint()
-					..color = Colors.red[600]
+					..color = Colors.red.shade600
 					..strokeWidth = EditorBase.strokeWidth / scaleFactor
 					..style = PaintingStyle.stroke;
 
 				if (shapeNotifier.lineShapes.isEmpty) {
 
 					Line mainAxis = Line(
-						_editorBaseState.globalToLocal(Offset(longestSide * 1/4, shortestSide * 1/2)),
-						_editorBaseState.globalToLocal(Offset(longestSide * 3/4, shortestSide * 1/2)),
+						_editorBaseState!.globalToLocal(Offset(longestSide * 1/4, shortestSide * 1/2)),
+						_editorBaseState!.globalToLocal(Offset(longestSide * 3/4, shortestSide * 1/2)),
 						_mainAxisPaint
 					);
 
@@ -383,21 +392,21 @@ class MeasurePageState extends State<MeasurePage> {
 		}
 	}
 
-	void addMarker([Offset center]) {
+	void addMarker([Offset? center]) {
 
-		double angle = _mAngle - _baseAngle;
+		double angle = _mAngle! - _baseAngle;
 		angle = (angle < -pi) ? angle + 2*pi: angle;
 		angle = (angle > pi) ? angle - 2*pi: angle;
 
-		Offset _offset = center ?? _editorBaseState.globalToLocal(MediaQuery.of(context).size.center(Offset.zero));
+		Offset _offset = center ?? _editorBaseState!.globalToLocal(MediaQuery.of(context).size.center(Offset.zero));
 
 		Matrix4 m = Matrix4.inverted(_subMatrix);
 		Offset transformedCenter = transformOffset(m, _offset);
 
-		Crosshair ch = Crosshair(_offset, angle, transformedCenter * _editorBaseState.isoRatio, Crosshair.markerPaint, _editorBaseState.scaleFactor);
+		Crosshair ch = Crosshair(_offset, angle, transformedCenter * _editorBaseState!.isoRatio, Crosshair.markerPaint, _editorBaseState!.scaleFactor!);
 
-		ch.size = ch.baseSize / _editorBaseState.scaleFactor;
-		ch.paint.strokeWidth = Crosshair.strokeWidth / _editorBaseState.scaleFactor;
+		ch.size = ch.baseSize / _editorBaseState!.scaleFactor!;
+		ch.paint.strokeWidth = Crosshair.strokeWidth / _editorBaseState!.scaleFactor!;
 	
 		if (center != null) {
 			shapeNotifier.markers.add(ch);
@@ -427,10 +436,10 @@ class MeasurePageState extends State<MeasurePage> {
 
 	void removeMarker(Offset position) {
 
-		Crosshair ch;
+		Crosshair? ch;
 
-		ch = shapeNotifier.markers.firstWhere(
-			(element) => (element.center - position).distance < (element.size),
+		ch = shapeNotifier.markers.cast<Crosshair?>().firstWhere(
+			(element) => (element!.center - position).distance < (element.size),
 			orElse: () => null
 		);
 
@@ -449,14 +458,14 @@ class MeasurePageState extends State<MeasurePage> {
 		updateDB();
 	}
 
-	void updateDB() {
-		widget.project.markers = toBlob(_markers);
-		ProjectsDatabase.dao.updateProject(widget.project);
+	Future updateDB() {
+    curProject = curProject.copyWith(markers: drift.Value(toBlob(_markers)));
+		return ProjectsDatabase.dao.updateProject(curProject);
 	}
 
 	@override
 	void dispose() {
-		shapeNotifier?.dispose();
+		shapeNotifier.dispose();
 		super.dispose();
 	}
 
@@ -620,8 +629,6 @@ class MeasurePageState extends State<MeasurePage> {
 					shapes: shapeNotifier,
 					onInitialization: nextStep,
 					onRotation: (delta) {
-						if (_baseAngle == null)
-							return;
 						setState(() {
 							_baseAngle += delta;
 							_baseAngle = _baseAngle > pi ? _baseAngle - 2*pi : _baseAngle;
@@ -643,7 +650,7 @@ class MeasurePageState extends State<MeasurePage> {
 
 class MarkerUiPainter extends CustomPainter {
 
-  	double angle;
+  double? angle;
 
 	double length = 20.0;
 
@@ -657,7 +664,7 @@ class MarkerUiPainter extends CustomPainter {
 
 		Offset center = size.center(Offset.zero);
 
-		double mAngle = angle;
+		double mAngle = angle!;
 
 		Offset a = center.translate(length * cos(mAngle), length * sin(mAngle));
 		Offset b = center.translate(-length * cos(mAngle), -length * sin(mAngle));

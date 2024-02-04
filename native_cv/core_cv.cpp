@@ -12,35 +12,58 @@ typedef struct sCoordinate
 
 typedef struct sNativeIntersection
 {
-    Coordinate* topLeft;
-    Coordinate* topRight;
-    Coordinate* bottomLeft;
-    Coordinate* bottomRight;
+    Coordinate topLeft;
+    Coordinate topRight;
+    Coordinate bottomLeft;
+    Coordinate bottomRight;
 } NativeIntersection;
 
 extern "C"
-int homography_warp(NativeIntersection* points, char *src, char *dst);
+Coordinate create_coordinate(double x, double y);
+
+extern "C"
+NativeIntersection create_intersection(Coordinate topLeft, Coordinate topRight, Coordinate bottomLeft, Coordinate bottomRight);
+
+extern "C"
+int homography_warp(NativeIntersection points, char *src, char *dst);
 
 #define ISOwidth 85.60f
 #define ISOheight 53.98f
 #define isoWidthDest (ISOwidth * 40.0f)
 #define isoHeightDest (isoWidthDest / ISOwidth * ISOheight)
 
-cv::Point2f cvPointFromCoordinate(Coordinate* c) {
-	return cv::Point2f((float)(c->x), (float)(c->y));
+Coordinate create_coordinate(double x, double y) {
+	Coordinate res;
+	res.x = x;
+	res.y = y;
+	
+	return res;
 }
 
-std::vector<cv::Point2f> nativeInter2Vect(NativeIntersection* points) {
+NativeIntersection create_intersection(Coordinate topLeft, Coordinate topRight, Coordinate bottomLeft, Coordinate bottomRight) {
+	NativeIntersection res;
+	res.topLeft = topLeft;
+	res.topRight = topRight;
+	res.bottomLeft = bottomLeft;
+	res.bottomRight = bottomRight;
+	
+	return res;
+}
+
+cv::Point2f cvPointFromCoordinate(Coordinate c) {
+	return cv::Point2f((float)(c.x), (float)(c.y));
+}
+
+std::vector<cv::Point2f> nativeInter2Vect(NativeIntersection points) {
 	return std::vector<cv::Point2f>({
-		cvPointFromCoordinate(points->topLeft),
-		cvPointFromCoordinate(points->topRight),
-		cvPointFromCoordinate(points->bottomRight),
-		cvPointFromCoordinate(points->bottomLeft)
+		cvPointFromCoordinate(points.topLeft),
+		cvPointFromCoordinate(points.topRight),
+		cvPointFromCoordinate(points.bottomRight),
+		cvPointFromCoordinate(points.bottomLeft)
 	});
 }
 
-extern "C" __attribute__((visibility("default"))) __attribute__((used))
-int homography_warp(NativeIntersection* points, char *src, char *dst) {
+int homography_warp(NativeIntersection points, char *src, char *dst) {
 
 	// Get Mat of original picture
 	cv::Mat src_mat = cv::imread(src);

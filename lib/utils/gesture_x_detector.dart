@@ -12,20 +12,21 @@ import 'package:vector_math/vector_math_64.dart' hide Colors;
 /// For handle rotate event, please use rotateAngle on onScaleUpdate.
 class XGestureDetector extends StatefulWidget {
   /// Creates a widget that detects gestures.
-  XGestureDetector(
-      {@required this.child,
-      this.onTap,
-      this.onMoveUpdate,
-      this.onMoveEnd,
-      this.onMoveStart,
-      this.onScaleStart,
-      this.onScaleUpdate,
-      this.onScaleEnd,
-      this.onDoubleTap,
-      this.bypassTapEventOnDoubleTap = false,
-      this.doubleTapTimeConsider = 250,
-      this.longPressTimeConsider = 350,
-      this.onLongPress});
+  XGestureDetector({
+    required this.child,
+    this.onTap,
+    this.onMoveUpdate,
+    this.onMoveEnd,
+    this.onMoveStart,
+    this.onScaleStart,
+    this.onScaleUpdate,
+    this.onScaleEnd,
+    this.onDoubleTap,
+    this.bypassTapEventOnDoubleTap = false,
+    this.doubleTapTimeConsider = 250,
+    this.longPressTimeConsider = 350,
+    this.onLongPress
+  });
 
   /// The widget below this widget in the tree.
   ///
@@ -41,28 +42,28 @@ class XGestureDetector extends StatefulWidget {
   final int doubleTapTimeConsider;
 
   /// The pointer that previously triggered the onTapDown has also triggered onTapUp which ends up causing a tap.
-  final void Function(int pointer, Offset localPos, Offset position) onTap;
+  final void Function(int pointer, Offset localPos, Offset position)? onTap;
 
   /// A pointer has contacted the screen with a primary button and has begun to
   /// move.
-  final void Function(int pointer, Offset localPos, Offset position)
+  final void Function(int pointer, Offset localPos, Offset position)?
       onMoveStart;
 
   /// A pointer that is in contact with the screen with a primary button and
   /// moving has moved again.
   final void Function(
-          Offset localPos, Offset position, Offset localDelta, Offset delta)
+          Offset localPos, Offset position, Offset localDelta, Offset delta)?
       onMoveUpdate;
 
   /// A pointer that was previously in contact with the screen with a primary
   /// button and moving is no longer in contact with the screen and was moving
   /// at a specific velocity when it stopped contacting the screen.
-  final void Function(int pointer, Offset localPosition, Offset position)
+  final void Function(int pointer, Offset localPosition, Offset position)?
       onMoveEnd;
 
   /// The pointers in contact with the screen have established a focal point and
   /// initial scale of 1.0.
-  final void Function(Offset initialFocusPoint) onScaleStart;
+  final void Function(Offset initialFocusPoint)? onScaleStart;
 
   /// The pointers in contact with the screen have indicated a new focal point
   /// and/or scale.
@@ -75,19 +76,19 @@ class XGestureDetector extends StatefulWidget {
   ///
   /// **rotationAngle** the rotate angle in radians - using for rotate
   final void Function(
-          Offset changedFocusPoint, double scale, double rotationAngle)
+          Offset changedFocusPoint, double scale, double rotationAngle)?
       onScaleUpdate;
 
   /// The pointers are no longer in contact with the screen.
-  final void Function() onScaleEnd;
+  final void Function()? onScaleEnd;
 
   /// The user has tapped the screen at the same location twice in quick succession.
-  final void Function(Offset localPos, Offset position) onDoubleTap;
+  final void Function(Offset localPos, Offset position)? onDoubleTap;
 
   /// A pointer has remained in contact with the screen at the same location for a long period of time
   ///
   /// @param
-  final void Function(int pointer, Offset localPos, Offset position)
+  final void Function(int pointer, Offset localPos, Offset position)?
       onLongPress;
 
   /// A specific duration to detect long press
@@ -108,10 +109,10 @@ enum _GestureState {
 
 class _XGestureDetectorState extends State<XGestureDetector> {
   List<_Touch> touches = [];
-  double initialScaleDistance;
+  double initialScaleDistance = 0.0;
   _GestureState state = _GestureState.Unknown;
-  Timer doubleTapTimer;
-  Timer longPressTimer;
+  Timer? doubleTapTimer;
+  Timer? longPressTimer;
   Offset lastTouchUpPos = Offset(0, 0);
 
   @override
@@ -154,12 +155,12 @@ class _XGestureDetectorState extends State<XGestureDetector> {
         state = _GestureState.MoveStart;
         touch.startOffset = event.localPosition;
         if (widget.onMoveStart != null)
-          widget.onMoveStart(
+          widget.onMoveStart!(
               event.pointer, event.localPosition, event.position);
         break;
       case _GestureState.MoveStart:
         if (widget.onMoveUpdate != null)
-          widget.onMoveUpdate(event.localPosition, event.position,
+          widget.onMoveUpdate!(event.localPosition, event.position,
               event.localDelta, event.delta);
         break;
       case _GestureState.ScaleStart:
@@ -169,7 +170,7 @@ class _XGestureDetectorState extends State<XGestureDetector> {
         if (widget.onScaleStart != null) {
           final centerOffset =
               (touches[0].currentOffset + touches[1].currentOffset) / 2;
-          widget.onScaleStart(centerOffset);
+          widget.onScaleStart!(centerOffset);
         }
         break;
       case _GestureState.Scalling:
@@ -179,7 +180,7 @@ class _XGestureDetectorState extends State<XGestureDetector> {
               (touches[0].currentOffset - touches[1].currentOffset).distance;
           final centerOffset =
               (touches[0].currentOffset + touches[1].currentOffset) / 2;
-          widget.onScaleUpdate(
+          widget.onScaleUpdate!(
               centerOffset, newDistance / initialScaleDistance, rotation);
         }
         break;
@@ -215,7 +216,7 @@ class _XGestureDetectorState extends State<XGestureDetector> {
         } else {
           cleanupTimer();
           if ((event.localPosition - lastTouchUpPos).distanceSquared < 200) {
-            widget.onDoubleTap(event.localPosition, event.position);
+            widget.onDoubleTap!(event.localPosition, event.position);
           } else {
             startDoubleTapTimer(
                 event.pointer, event.localPosition, event.position);
@@ -225,11 +226,11 @@ class _XGestureDetectorState extends State<XGestureDetector> {
     } else if (state == _GestureState.ScaleStart ||
         state == _GestureState.Scalling) {
       state = _GestureState.Unknown;
-      if (widget.onScaleEnd != null) widget.onScaleEnd();
+      if (widget.onScaleEnd != null) widget.onScaleEnd!();
     } else if (state == _GestureState.MoveStart) {
       state = _GestureState.Unknown;
       if (widget.onMoveEnd != null)
-        widget.onMoveEnd(event.pointer, event.localPosition, event.position);
+        widget.onMoveEnd!(event.pointer, event.localPosition, event.position);
     } else if (state == _GestureState.Unknown && touchCount == 2) {
       state = _GestureState.ScaleStart;
     } else {
@@ -242,14 +243,14 @@ class _XGestureDetectorState extends State<XGestureDetector> {
   void startLongPressTimer(int pointer, Offset localPos, Offset position) {
     if (widget.onLongPress != null) {
       if (longPressTimer != null) {
-        longPressTimer.cancel();
+        longPressTimer!.cancel();
         longPressTimer = null;
       }
       longPressTimer =
           Timer(Duration(milliseconds: widget.longPressTimeConsider), () {
         if (touchCount == 1 && touches[0].id == pointer) {
           state = _GestureState.LongPress;
-          widget.onLongPress(pointer, localPos, position);
+          widget.onLongPress!(pointer, localPos, position);
           cleanupTimer();
         }
       });
@@ -269,18 +270,18 @@ class _XGestureDetectorState extends State<XGestureDetector> {
 
   void cleanupTimer() {
     if (doubleTapTimer != null) {
-      doubleTapTimer.cancel();
+      doubleTapTimer!.cancel();
       doubleTapTimer = null;
     }
     if (longPressTimer != null) {
-      longPressTimer.cancel();
+      longPressTimer!.cancel();
       longPressTimer = null;
     }
   }
 
   void callOnTap(int pointer, Offset localPos, Offset globalPos) {
     if (widget.onTap != null) {
-      widget.onTap(pointer, localPos, globalPos);
+      widget.onTap!(pointer, localPos, globalPos);
     }
   }
 
@@ -301,7 +302,7 @@ class _XGestureDetectorState extends State<XGestureDetector> {
 class _Touch {
   int id;
   Offset startOffset;
-  Offset currentOffset;
+  late Offset currentOffset;
 
   _Touch(this.id, this.startOffset) {
     this.currentOffset = startOffset;
@@ -315,7 +316,7 @@ Offset transformOffset(Matrix4 matrix, Offset offset) {
 	);
 }
 
-Offset vect2Offset(Vector2 v) => Offset(v?.x, v?.y);
-Vector2 offset2Vect(Offset o) => Vector2(o?.dx, o?.dy);
+Offset vect2Offset(Vector2 v) => Offset(v.x, v.y);
+Vector2 offset2Vect(Offset o) => Vector2(o.dx, o.dy);
 
 Offset invertOffset(Offset o) => Offset(o.dy, o.dx);

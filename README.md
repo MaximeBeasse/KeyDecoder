@@ -13,7 +13,7 @@ Developped by [*Maxime BEASSE*](https://twitter.com/maxime_beasse) and [*Quentin
 
 In partnership with [FrenchKey](https://intrusion.eu/en/home/) and [CNS](https://www.esiea.fr/expertise-confiance-numerique-securite/) from [ESIEA](https://www.esiea.fr/).
 
-Powered by [Flutter](https://flutter.dev) and [OpenCV (4.3.0)](https://opencv.org/)
+Powered by [Flutter (3.13.6)](https://flutter.dev) and [OpenCV (4.3.0)](https://opencv.org/)
 
 <p align="center">
  <img src="https://lh3.googleusercontent.com/A_Xf4iP53YZ1-LiREhA-F8Zc60vKMGVieNlORz-UP--VNtGgTxQK03jlxDfWUi2SqHc">
@@ -21,7 +21,7 @@ Powered by [Flutter](https://flutter.dev) and [OpenCV (4.3.0)](https://opencv.or
 
 # Summary
 
-<!--ts-->
+<!-- ts -->
    * [KeyDecoder](#keydecoder)
    * [Summary](#summary)
    * [Disclamer](#disclamer)
@@ -71,11 +71,12 @@ If you want to protect yourself from having your keys duplicated without your co
 
 ## Build
 
-* Download [Flutter SDK](https://flutter.dev/docs/get-started/install)
+* To install Flutter, it is recommended to use [fvm](https://fvm.app/), a Flutter Version Management tool. But you can also use the official [Flutter installation guide](https://flutter.dev/docs/get-started/install).
+  * The project is built using Flutter `v3.13.6`
 
 ### Android
 
-* Download [OpenCV v4.3.0](https://sourceforge.net/projects/opencvlibrary/) 
+* Download [OpenCV-Android-SDK v4.3.0](https://sourceforge.net/projects/opencvlibrary/files/4.3.0/opencv-4.3.0-android-sdk.zip) and extract it to a directory of your choice. (eg. `C:\SDK\OpenCV-android-sdk`)
 * Create the `local.properties` file under `android/`, providing the following settings :
 ```sdk.dir=<Android SDK path>
 flutter.sdk=<Flutter SDK path>
@@ -84,7 +85,8 @@ flutter.versionName=1.0.0
 flutter.versionCode=1
 opencv.sdk=<OpenCV Android SDK path>
 ```
-* Build the project using `flutter build apk`
+* Copy the subdirectories in `C:\...\OpenCV-android-sdk\sdk\native\libs` to the directory `C:\...\keydecoder\android\app\src\main\jniLibs`
+* Build the project using `fvm flutter build apk`
 
 ### IOS
 

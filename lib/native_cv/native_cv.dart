@@ -1,59 +1,30 @@
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
-import 'dart:ui';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/material.dart';
 
-class Coordinate extends Struct {
+final class Coordinate extends Struct {
 	@Double()
-	double x;
+	external double x;
 
 	@Double()
-	double y;
-
-	factory Coordinate.allocate(double x, double y) => 
-		allocate<Coordinate>().ref
-			..x = x
-			..y = y;
-
-	factory Coordinate.fromOffset(Offset o) => 
-		allocate<Coordinate>().ref
-			..x = o.dx
-			..y = o.dy;
+	external double y;
 }
 
-class NativeIntersection extends Struct {
-	Pointer<Coordinate> topLeft;
-	Pointer<Coordinate> topRight;
-	Pointer<Coordinate> bottomLeft;
-	Pointer<Coordinate> bottomRight;
-	
-	factory NativeIntersection.allocate(
-		Pointer<Coordinate> topLeft,
-		Pointer<Coordinate> topRight,
-		Pointer<Coordinate> bottomLeft,
-		Pointer<Coordinate> bottomRight) =>
-		allocate<NativeIntersection>().ref
-			..topLeft = topLeft
-			..topRight = topRight
-			..bottomLeft = bottomLeft
-			..bottomRight = bottomRight;
-
-	factory NativeIntersection.fromDart(DartIntersection dinter) =>
-		allocate<NativeIntersection>().ref
-			..topLeft = Coordinate.fromOffset(dinter.topLeft).addressOf
-			..topRight = Coordinate.fromOffset(dinter.topRight).addressOf
-			..bottomLeft = Coordinate.fromOffset(dinter.bottomLeft).addressOf
-			..bottomRight = Coordinate.fromOffset(dinter.bottomRight).addressOf;
+final class NativeIntersection extends Struct {
+	external Coordinate topLeft;
+	external Coordinate topRight;
+	external Coordinate bottomLeft;
+	external Coordinate bottomRight;
 }
 
 class DartIntersection {
 	DartIntersection({
-		@required this.topLeft,
-		@required this.topRight,
-		@required this.bottomLeft,
-		@required this.bottomRight,
+		required this.topLeft,
+		required this.topRight,
+		required this.bottomLeft,
+		required this.bottomRight,
 	});
 
 	DartIntersection.fromList(List<Offset> l) {
@@ -62,14 +33,14 @@ class DartIntersection {
 
 		topLeft = l[0];
 		topRight = l[1];
-		bottomRight = l[2];
 		bottomLeft = l[3];
+		bottomRight = l[2];
 	}
 
-	Offset topLeft;
-	Offset topRight;
-	Offset bottomLeft;
-	Offset bottomRight;
+	late Offset topLeft;
+	late Offset topRight;
+	late Offset bottomLeft;
+	late Offset bottomRight;
 
 	@override
 	String toString() {
@@ -82,31 +53,80 @@ class DartIntersection {
 	}
 }
 
-typedef homogaphy_warp_function = Int8 Function(
-  	Pointer<NativeIntersection> points, Pointer<Utf8> src, Pointer<Utf8> dst
+typedef CreateCoordinateNative = Coordinate Function(Double x, Double y);
+typedef CreateCoordinate = Coordinate Function(double x, double y);
+
+typedef CreateNativeIntersectionNative = NativeIntersection Function(
+	Coordinate topLeft,
+	Coordinate topRight,
+	Coordinate bottomLeft,
+	Coordinate bottomRight
+);
+typedef CreateNativeIntersection = NativeIntersection Function(
+	Coordinate topLeft,
+	Coordinate topRight,
+	Coordinate bottomLeft,
+	Coordinate bottomRight
 );
 
+typedef HomogaphyWarpFunctionNative = Int8 Function(
+  	NativeIntersection points, Pointer<Utf8> src, Pointer<Utf8> dst
+);
 typedef HomogaphyWarpFunction = int Function(
-	Pointer<NativeIntersection> points,
+	NativeIntersection points,
 	Pointer<Utf8> src,
 	Pointer<Utf8> dst
 );
 
+typedef CroplessWarpFunctionNative = Double Function(
+  	NativeIntersection points, Pointer<Utf8> src, Pointer<Utf8> dst, Double width, Double length
+);
+typedef CroplessWarpFunction = double Function(
+	NativeIntersection points,
+	Pointer<Utf8> src,
+	Pointer<Utf8> dst,
+	double width,
+	double length
+);
+
+NativeIntersection createNativeIntersectionFromDart(DynamicLibrary dynamicLibrary, DartIntersection points) {
+
+	final createCoordinate = dynamicLibrary.lookupFunction<CreateCoordinateNative, CreateCoordinate>("create_coordinate");
+	final createIntersection = dynamicLibrary.lookupFunction<CreateNativeIntersectionNative, CreateNativeIntersection>("create_intersection");
+
+	Coordinate topLeft = createCoordinate(points.topLeft.dx, points.topLeft.dy);
+	Coordinate topRight = createCoordinate(points.topRight.dx, points.topRight.dy);
+	Coordinate bottomLeft = createCoordinate(points.bottomLeft.dx, points.bottomLeft.dy);
+	Coordinate bottomRight = createCoordinate(points.bottomRight.dx, points.bottomRight.dy);
+
+	return createIntersection(topLeft, topRight, bottomLeft, bottomRight);
+}
+
 class HomographyWarp {
-  static Future<int> homographyWarp(DartIntersection points, String src, String dst) async {
-    DynamicLibrary nativeCvLib = _getDynamicLibrary();
+	static Future<int> homographyWarp(DartIntersection points, String src, String dst) async {
+		DynamicLibrary nativeCvLib = _getDynamicLibrary();
 
-    var lookup = nativeCvLib.lookup<NativeFunction<homogaphy_warp_function>>("homography_warp");
-	final homographicWarp = lookup.asFunction<HomogaphyWarpFunction>();
+		final homographicWarp = nativeCvLib.lookupFunction<HomogaphyWarpFunctionNative, HomogaphyWarpFunction>("homography_warp");
 
-	NativeIntersection ninter = NativeIntersection.fromDart(points);
+		NativeIntersection ninter = createNativeIntersectionFromDart(nativeCvLib, points);
 
-    return homographicWarp(ninter.addressOf, Utf8.toUtf8(src), Utf8.toUtf8(dst));
-  }
-  static DynamicLibrary _getDynamicLibrary() {
-    final DynamicLibrary nativeCvLib = Platform.isAndroid
-        ? DynamicLibrary.open("libnative_cv.so")
-        : DynamicLibrary.process();
-    return nativeCvLib;
-  }
+		return homographicWarp(ninter, src.toNativeUtf8(), dst.toNativeUtf8());
+	}
+
+	static Future<double> croplessWarp(DartIntersection points, String src, String dst, double width, double length) async {
+		DynamicLibrary nativeCvLib = _getDynamicLibrary();
+		
+		final croplessWarp = nativeCvLib.lookupFunction<CroplessWarpFunctionNative, CroplessWarpFunction>("cropless_warp");
+
+		NativeIntersection ninter = createNativeIntersectionFromDart(nativeCvLib, points);
+
+		return croplessWarp(ninter, src.toNativeUtf8(), dst.toNativeUtf8(), width, length);
+	}
+
+	static DynamicLibrary _getDynamicLibrary() {
+		final DynamicLibrary nativeCvLib = Platform.isAndroid
+			? DynamicLibrary.open("libnative_cv.so")
+			: DynamicLibrary.process();
+		return nativeCvLib;
+	}
 }

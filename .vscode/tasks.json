@@ -6,7 +6,7 @@
 		{
 			"label": "Generate Moor Database schema",
 			"type": "shell",
-			"command": "flutter packages pub run build_runner build"
+			"command": "fvm flutter packages pub run build_runner build"
 		},
 		
 	]

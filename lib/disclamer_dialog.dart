@@ -38,16 +38,16 @@ The authors DO NOT ALLOW any users to sell keys created with the help of this ap
 	@override
 	Widget build(BuildContext context) {
 		return AlertDialog(
-			title: Text(_texts[_curPage]['title'], textAlign: (_texts[_curPage]['content'] != null) ? TextAlign.start : TextAlign.center,),
-			content: _texts[_curPage]['content'] == null ? null : Text(_texts[_curPage]['content'], textAlign: TextAlign.justify,),
+			title: Text(_texts[_curPage]['title']!, textAlign: (_texts[_curPage]['content'] != null) ? TextAlign.start : TextAlign.center,),
+			content: _texts[_curPage]['content'] == null ? null : Text(_texts[_curPage]['content']!, textAlign: TextAlign.justify,),
 			actions: (_curPage > 0) ? ([
-				FlatButton(
+				TextButton(
 					onPressed: () {
 						setState(() => _curPage--);
 					},
 					child: Text('Back'),
 				),
-				FlatButton(
+				TextButton(
 					onPressed: () {
 						if (_curPage + 1 >= _texts.length)
 							Navigator.pop(context);
@@ -57,7 +57,7 @@ The authors DO NOT ALLOW any users to sell keys created with the help of this ap
 					child: Text('Continue'),
 				),
 			]) : ([
-				FlatButton(
+				TextButton(
 					onPressed: () {
 						setState(() => _curPage++);
 					},

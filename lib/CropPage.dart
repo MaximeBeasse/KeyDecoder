@@ -22,7 +22,7 @@ class CropPage extends StatefulWidget {
 	final Uint8List imageData;
 
 	static const routeName = '/crop';
-	static Route<dynamic> route(Object args) {
+	static Route<dynamic> route(Object? args) {
 		return MaterialPageRoute(
             builder: (BuildContext context) {
 				if (args is File)
@@ -40,7 +40,7 @@ class CropPageState extends State<CropPage> {
 
 	GlobalKey editorKey = GlobalKey();
 
-	ShapeNotifier shapeNotifier;
+	late ShapeNotifier shapeNotifier;
 
 	bool _canAdd = true;
 	bool _canRemove = false;
@@ -49,6 +49,8 @@ class CropPageState extends State<CropPage> {
 	bool _portrait = false;
 
 	Size imageSize = Size.zero;
+  
+  bool _loadingCrop = false;
 
 	EditorBaseState get _editorBaseState => (editorKey.currentState as EditorBaseState);
 
@@ -66,11 +68,11 @@ class CropPageState extends State<CropPage> {
 			shapeNotifier.lineShapes.last.b = shapeNotifier.draggableShapes[1].center;
 		});
 
-		img.Image image = img.decodeImage(widget.imageData);
+		img.Image? image = img.decodeImage(widget.imageData);
 
-		imageSize = Size(image.width.toDouble(), image.height.toDouble());
+		imageSize = Size(image!.width.toDouble(), image.height.toDouble());
 
-		final orientation = (image.exif.hasOrientation) ? image.exif.orientation : 1;
+		final orientation = (image.exif.imageIfd.hasOrientation) ? image.exif.imageIfd.Orientation : 1;
 
 		switch (orientation) {
 			case 1:
@@ -102,7 +104,7 @@ class CropPageState extends State<CropPage> {
 
 	void addLine() {
 
-		if (shapeNotifier?.lineShapes?.length == 4) {
+		if (shapeNotifier.lineShapes.length == 4) {
 			if(!_canAccept || _canAdd) {
 				setState(() {
 					_canAccept = true;
@@ -117,7 +119,7 @@ class CropPageState extends State<CropPage> {
 		double longestSide = mediaSize.longestSide;
 		double shortestSide = mediaSize.shortestSide;
 
-		double scaleFactor = _editorBaseState.scaleFactor;
+		double scaleFactor = _editorBaseState.scaleFactor!;
 
 		final Paint _cropPaint = Paint()
 			..color = Colors.green
@@ -183,7 +185,7 @@ class CropPageState extends State<CropPage> {
 			shapeNotifier.draggableShapes[1].center = lastLine.b;
 		} else {
 
-			double scaleFactor = _editorBaseState.scaleFactor;
+			double scaleFactor = _editorBaseState.scaleFactor!;
 
 			final Paint _cropPaint = Paint()
 				..color = Colors.green
@@ -239,7 +241,7 @@ class CropPageState extends State<CropPage> {
 					title: Text('Wrong number of corners'),
 					content: Text('Please fix your crop to have 4 corners within the image bounds'),
 					actions: [
-						FlatButton(
+						TextButton(
 							child: Text('Ok'),
 							onPressed: Navigator.of(context)?.pop,
 						)
@@ -248,6 +250,10 @@ class CropPageState extends State<CropPage> {
 				barrierDismissible: true,
 			);
 		}
+    
+    setState(() {
+      _loadingCrop = true;
+    });
 
 		// Sort points and return DartIntersection
 		DartIntersection dinter = _computeClosedPath(intersections);
@@ -269,6 +275,8 @@ class CropPageState extends State<CropPage> {
 		final resultPath = p.join(widget.imageFile.parent.path, 'crop_' + p.basenameWithoutExtension(widget.imageFile.path) + '.png');
 
 		int res = await HomographyWarp.homographyWarp(dinter, widget.imageFile.path, resultPath);
+
+    _loadingCrop = false;
 
 		if (res < 0)
 			throw Exception('homographyWarp failed');
@@ -339,7 +347,7 @@ class CropPageState extends State<CropPage> {
 
 	@override
 	void dispose() {
-		shapeNotifier?.dispose();
+		shapeNotifier.dispose();
 		super.dispose();
 	}
 
@@ -347,46 +355,60 @@ class CropPageState extends State<CropPage> {
 	Widget build(BuildContext context) {
 		return Center(
 		  child: Stack(
-		      	fit: StackFit.expand,
-		      	children: [
-		      		EditorBase(
-						key: editorKey,
-						imageData: widget.imageData,
-		      			shapes: shapeNotifier,
-						portrait: _portrait,
-						onInitialization: addLine
-		      		),
-		      		Align(
-		      			alignment: Alignment.bottomRight,
-		      			child: Column(
-							crossAxisAlignment: CrossAxisAlignment.end,
-							mainAxisAlignment: MainAxisAlignment.end,
-							mainAxisSize: MainAxisSize.max,
-		      				children: [
-								VisibleButton(
-									child: Icon(Icons.undo, size: 56.0, color: Colors.red[600],),
-									onTap: removeLine,
-									visible: _canRemove,
-								),
-								VisibleButton(
-									child: Icon(Icons.add, size: 56.0, color: Colors.white70,),
-									onTap: addLine,
-									visible: _canAdd,
-									keepSpace: true
-								),
-		      				],
-		      			)
-		      		),
-		      		Align(
-		      			alignment: Alignment.topLeft,
-		      			child: VisibleButton(
-							child: Icon(Icons.check, size: 56.0, color: Colors.green,),
-							onTap: cropImage,
-							visible: _canAccept,
-						),
-		      		)
-		      	],
-		    ),
+        fit: StackFit.expand,
+        children: [
+          EditorBase(
+            key: editorKey,
+            imageData: widget.imageData,
+            shapes: shapeNotifier,
+            portrait: _portrait,
+            onInitialization: addLine
+          ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                VisibleButton(
+                  child: Icon(Icons.undo, size: 56.0, color: Colors.red[600],),
+                  onTap: removeLine,
+                  visible: _canRemove,
+                ),
+                VisibleButton(
+                  child: Icon(Icons.add, size: 56.0, color: Colors.white70,),
+                  onTap: addLine,
+                  visible: _canAdd,
+                  keepSpace: true
+                ),
+              ],
+            )
+          ),
+          Align(
+            alignment: Alignment.topRight,
+            child: _loadingCrop ? const CircularProgressIndicator() : VisibleButton(
+              child: Icon(Icons.check, size: 56.0, color: Colors.green,),
+              onTap: cropImage,
+              visible: _canAccept,
+            ),
+          ),
+          Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "Crop the card", 
+                style: TextStyle(
+                  color: Colors.white,
+                  decoration: TextDecoration.none,
+                  fontSize: 16.0
+                )
+              ),
+            ),
+          ),
+        ],
+      ),
 		);
 	}
 }

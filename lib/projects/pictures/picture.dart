@@ -14,7 +14,7 @@ class Picture {
 		return dir.create(recursive: true);
 	}
 
-	static Future<File> getImageFromSource(ImageSource selection) async {
+	static Future<File?> getImageFromSource(ImageSource selection) async {
 		/**
 		 * Retrieve or Take picture and keep file in intern data.
 		 * 
@@ -24,7 +24,7 @@ class Picture {
 		 */
 
 		// Retrieve image via selected source
-		PickedFile pickedPicture = await _imagePicker.getImage(source: selection);
+		XFile? pickedPicture = await _imagePicker.pickImage(source: selection);
 
 		if (pickedPicture == null)
 			return null;

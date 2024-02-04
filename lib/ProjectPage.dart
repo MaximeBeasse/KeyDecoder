@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:animate_icons/animate_icons.dart';
+import 'package:animate_icons/animate_icons.dart' show AnimateIconController, AnimateIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
@@ -8,6 +8,8 @@ import 'package:keydecoder/CropPage.dart';
 import 'package:image_picker/image_picker.dart' show ImageSource;
 import 'package:keydecoder/utils/gesture_x_detector.dart';
 import 'package:provider/provider.dart';
+
+import 'package:drift/drift.dart' as drift;
 
 import 'EditorBase.dart';
 import 'MeasurePage.dart';
@@ -23,7 +25,7 @@ class ProjectPage extends StatefulWidget {
 	final String title = 'Project Page';
 
 	static const routeName = '/project';
-	static Route<dynamic> route(Object args) {
+	static Route<dynamic> route(Object? args) {
 		return MaterialPageRoute(
             builder: (BuildContext context) => ProjectPage(args as Project),
         );
@@ -35,14 +37,14 @@ class ProjectPage extends StatefulWidget {
 
 class ProjectPageState extends State<ProjectPage> {
 
-	TextEditingController _titleController;
-	TextEditingController _descriptionController;
+	late TextEditingController _titleController;
+	late TextEditingController _descriptionController;
 
-	FocusNode _fnTitle;
-	FocusNode _fnBrief;
-  	FocusNode _fnFabs;
+	late FocusNode _fnTitle;
+	late FocusNode _fnBrief;
+  late FocusNode _fnFabs;
 
-	Project project;
+	late Project project;
 
 	bool _updated = false;
 
@@ -73,9 +75,9 @@ class ProjectPageState extends State<ProjectPage> {
 		
 		kvc.onChange.listen((bool visible) {
 			if (!visible) {
-				_fnTitle?.unfocus();
-				_fnBrief?.unfocus();
-				_fnFabs?.unfocus();
+				_fnTitle.unfocus();
+				_fnBrief.unfocus();
+				_fnFabs.unfocus();
 			}
 		});
 
@@ -84,13 +86,13 @@ class ProjectPageState extends State<ProjectPage> {
 
 	@override
 	void dispose() {
-		_titleController?.dispose();
-		_fnTitle?.dispose();
+		_titleController.dispose();
+		_fnTitle.dispose();
 
-		_descriptionController?.dispose();
-		_fnBrief?.dispose();
+		_descriptionController.dispose();
+		_fnBrief.dispose();
 
-		_fnFabs?.dispose();
+		_fnFabs.dispose();
 
 		super.dispose();
 	}
@@ -108,7 +110,8 @@ class ProjectPageState extends State<ProjectPage> {
 				],
 				controller: _titleController,
 				onChanged: (text) {
-					project.title = text;
+          project = project.copyWith(title: text);
+          ProjectsDatabase.dao.updateProject(project);
 					_updated = true;
 				},
 				focusNode: _fnTitle,
@@ -126,7 +129,8 @@ class ProjectPageState extends State<ProjectPage> {
 				maxLines: 2,
 				controller: _descriptionController,
 				onChanged: (text) {
-					project.description = text;
+					project = project.copyWith(description: text);
+          ProjectsDatabase.dao.updateProject(project);
 					_updated = true;
 				},
 				focusNode: _fnBrief,
@@ -139,13 +143,15 @@ class ProjectPageState extends State<ProjectPage> {
 		List<double> gaps = <double>[];
 		List<Widget> depthsText = <Widget>[];
 		List<Widget> gapsText = <Widget>[];
-		Matrix4 bittingMat = Matrix4.inverted(Matrix4.translationValues(project.originX, project.originY, 0)..rotateZ(project.angle));
+		Matrix4 bittingMat = Matrix4.inverted(Matrix4.translationValues(project.originX!, project.originY!, 0)..rotateZ(project.angle!));
 
 		for (var i = 0; i < markers.length; i++) {
 			markers[i] = transformOffset(bittingMat, markers[i]);
-			depths.add(markers[i].dy.abs() * project.isoRatio);
+			depths.add(markers[i].dy.abs() * project.isoRatio!);
 			if (i > 0)
-				gaps.add((markers[i-1].dx.abs() - markers[i].dx.abs()).abs() * project.isoRatio);
+				gaps.add((markers[i-1].dx.abs() - markers[i].dx.abs()).abs() * project.isoRatio!);
+      else
+        gaps.add(markers[i].dx.abs() * project.isoRatio!);
 		}
 
 		depths.forEach((d) {
@@ -169,6 +175,20 @@ class ProjectPageState extends State<ProjectPage> {
 				)
 			);
 		});
+
+    depthsText.insert(0, Center(
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 2), 
+        child: Text('Depth')
+      )
+    ));
+
+    gapsText.insert(0, Center(
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 2), 
+        child: Text('Dist')
+      )
+    ));
 		
 		return DefaultTextStyle(
 			style: TextStyle(
@@ -180,26 +200,30 @@ class ProjectPageState extends State<ProjectPage> {
 					Table(
 						border: TableBorder.all(),
 						children: [
+              TableRow(
+                children: List.generate(depthsText.length, (index) {
+                  if (index == 0)
+                    return Center(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 2),
+                        child: Text('N°')
+                      )
+                    );
+                  return Center(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 2),
+                      child: Text('$index')
+                    )
+                  );
+                })
+              ),
 							TableRow(
 								children: depthsText
-							)
-						]
-					),
-					Padding(
-						padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width / depthsText.length / 2),
-						child: Table(
-							border: TableBorder(
-								bottom: BorderSide(),
-								left: BorderSide(),
-								right: BorderSide(),
-								verticalInside: BorderSide(),
 							),
-							children: [
-								TableRow(
-									children: gapsText
-								)
-							]
-						),
+              TableRow(
+                children: gapsText
+              )
+						]
 					),
 				],
 			),
@@ -215,14 +239,14 @@ class ProjectPageState extends State<ProjectPage> {
 					Divider(height: 10.0,),
 					description(),
 					Visibility(
-						visible: project.markers != null && project.markers.isNotEmpty,
+						visible: project.markers != null && project.markers!.isNotEmpty,
 						child: Padding(
 							padding: const EdgeInsets.all(8.0),
 							child: Column(
 								children: [
 									Builder(
 										builder: (ctxt) {
-											List<Offset> markers = fromBlob(project.markers);
+											List<Offset> markers = fromBlob(project.markers!);
 											if (markers.length >= 2)
 												return generateTableForAxis(markers.reversed.toList());
 											return Container();
@@ -238,7 +262,7 @@ class ProjectPageState extends State<ProjectPage> {
 	}
 
 	void selectedImageSource(ImageSource src) async {
-		File savedFile = await Picture.getImageFromSource(src);
+		File? savedFile = await Picture.getImageFromSource(src);
 
 		// Image picker canceled
 		if (savedFile == null)
@@ -247,14 +271,10 @@ class ProjectPageState extends State<ProjectPage> {
 		if (project.pathRawPic.isNotEmpty)
 			File(project.pathRawPic).deleteSync();
 
-		setState(() {
-			project.pathRawPic = savedFile.path;
-		});
-
+    project = project.copyWith(pathRawPic: savedFile.path);
 		ProjectsDatabase.dao.updateProject(project);
 
-		EditorBase.initEditorBase().then((_)
-			=> cropRawImage().then((cropped) {
+		cropRawImage().then((cropped) {
 			if(cropped)
 				measureCuts().then((_) {
 					EditorBase.disposeEditorBase();
@@ -262,7 +282,7 @@ class ProjectPageState extends State<ProjectPage> {
 				});
 			else
 				EditorBase.disposeEditorBase();
-		}));
+		});
 	}
 
 	Future<bool> cropRawImage() async {
@@ -274,16 +294,15 @@ class ProjectPageState extends State<ProjectPage> {
 			return false;
 
 		// Existing file overwritten
-		setState(() {
-			project.pathCroppedPic = result as String;
-		});
+    project = project.copyWith(
+      pathCroppedPic: result as String,
+      originX: drift.Value(null),
+      originY: drift.Value(null),
+      angle: drift.Value(null),
+      markers: drift.Value(null),
+    );
 
-		project.originX = null;
-		project.originX = null;
-		project.angle = null;
-		project.markers = null;
-		ProjectsDatabase.dao.updateProject(widget.project);
-
+		setState(() {});
 		await ProjectsDatabase.dao.updateProject(project);
 
 		return true;
@@ -291,10 +310,11 @@ class ProjectPageState extends State<ProjectPage> {
 
 	Future measureCuts() async {
 		await Navigator.of(context).pushNamed(MeasurePage.routeName, arguments: project);
-		
-		await ProjectsDatabase.dao.updateProject(project);
-		
-		setState(() {});
+				
+    ProjectsDatabase.dao.getProjectByID(project.id).then((p) {
+      project = p;
+      setState(() {});
+    });
 	}
 
 	Future<bool> _onBackPressed() async {
@@ -320,7 +340,7 @@ class ProjectPageState extends State<ProjectPage> {
 						ProjectFloatingActionButton(),
 					]
 				),
-				resizeToAvoidBottomPadding: false,
+				resizeToAvoidBottomInset: false,
 			), 
 			onWillPop: _onBackPressed,
 		);
@@ -337,29 +357,29 @@ class ProjectFloatingActionButton extends StatefulWidget {
 
 class ProjectFloatingActionButtonState extends State<ProjectFloatingActionButton> with SingleTickerProviderStateMixin {
 
-	ProjectPageState get parent => context.findAncestorStateOfType<ProjectPageState>();
+	ProjectPageState? get parent => context.findAncestorStateOfType<ProjectPageState>();
 	
 	bool isOpened = false;
-  	AnimationController _animationController;
-	Animation<Color> _buttonColor;
-	AnimateIconController _animateIcon;
-	Animation<double> _translateButton;
+  late AnimationController _animationController;
+	late Animation<Color?> _buttonColor;
+	late AnimateIconController _animateIcon;
+	late Animation<double> _translateButton;
 	Curve _curve = Curves.easeOut;
 	double _fabHeight = 56.0;
 
-	final Color _colorDisable = Colors.grey[600];
+	final Color _colorDisable = Colors.grey.shade600;
 	final Color _colorActive = Colors.blue;
-	final Color _colorDone = Colors.lightGreen[400];
+	final Color _colorDone = Colors.lightGreen.shade400;
 
 	@override
 	initState() {
 		
-		parent._fnTitle.addListener(() {
+		parent?._fnTitle.addListener(() {
 			animate(forceClose: true);
 			_animateIcon.animateToStart();
 		});
 
-		parent._fnBrief.addListener(() {
+		parent?._fnBrief.addListener(() {
 			animate(forceClose: true);
 			_animateIcon.animateToStart();
 		});
@@ -421,7 +441,7 @@ class ProjectFloatingActionButtonState extends State<ProjectFloatingActionButton
 			onPressed: () {
 				animate(forceClose: true);
 				_animateIcon.animateToStart();
-				parent.selectedImageSource(ImageSource.camera);
+				parent?.selectedImageSource(ImageSource.camera);
 			},
 			heroTag: 'editBrief',
 		));
@@ -433,7 +453,7 @@ class ProjectFloatingActionButtonState extends State<ProjectFloatingActionButton
 			onPressed: () {
 				animate(forceClose: true);
 				_animateIcon.animateToStart();
-				parent.selectedImageSource(ImageSource.gallery);
+				parent?.selectedImageSource(ImageSource.gallery);
 			},
 			heroTag: 'pickImage',
 		));
@@ -455,7 +475,7 @@ class ProjectFloatingActionButtonState extends State<ProjectFloatingActionButton
 	
 	Widget fab() {
 		_buttonColor = ColorTween(
-			begin: (parent.project.pathRawPic.isEmpty) ? _colorActive: _colorDone,
+			begin: (parent!.project.pathRawPic.isEmpty) ? _colorActive: _colorDone,
 			end: Colors.red,
 		).animate(CurvedAnimation(
 			parent: _animationController,
@@ -485,7 +505,8 @@ class ProjectFloatingActionButtonState extends State<ProjectFloatingActionButton
 						return true;
 					},
 					duration: Duration(milliseconds: 500),
-					color: Colors.white,
+					startIconColor: Colors.white,
+          endIconColor: Colors.white,
 					clockwise: false,
 					controller: _animateIcon,
 				),
@@ -497,8 +518,8 @@ class ProjectFloatingActionButtonState extends State<ProjectFloatingActionButton
 	Widget cropFab({bool active = false, bool completed = false}) {
 		return Container(
 			child: FloatingActionButton(
-				onPressed: (active || completed) ? () => EditorBase.initEditorBase()
-					.then((_) => parent.cropRawImage()
+				onPressed: (active || completed) ? () => /*EditorBase.initEditorBase()*/Future.value(null)
+					.then((_) => parent?.cropRawImage()
 						.then((_) => EditorBase.disposeEditorBase())) : null,
 				tooltip: 'Crop image',
 				child: Icon(Icons.crop),
@@ -512,8 +533,8 @@ class ProjectFloatingActionButtonState extends State<ProjectFloatingActionButton
 	Widget measureFab({bool active = false, bool completed = false}) {
 		return Container(
 			child: FloatingActionButton(
-				onPressed: (active || completed) ? () => EditorBase.initEditorBase()
-					.then((_) => parent.measureCuts()
+				onPressed: (active || completed) ? () => /*EditorBase.initEditorBase()*/Future.value(null)
+					.then((_) => parent?.measureCuts()
 						.then((_) => EditorBase.disposeEditorBase())) : null,
 				tooltip: 'Measure key',
 				child: Icon(Icons.straighten),
@@ -541,30 +562,33 @@ class ProjectFloatingActionButtonState extends State<ProjectFloatingActionButton
 
 	@override
 	Widget build(BuildContext context) {
-		return Stack(
-			alignment: Alignment.bottomCenter,
-			children: [
-				Positioned(
-					width: MediaQuery.of(context).size.width,
-					bottom: 20,
-					child: Row(
-						crossAxisAlignment: CrossAxisAlignment.end,
-						mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-						mainAxisSize: MainAxisSize.min,
-						children: [
-							Column(
-								mainAxisAlignment: MainAxisAlignment.center,
-								crossAxisAlignment: CrossAxisAlignment.start,
-								children: content()..add(fab()),
-							),
-							lineDiv(show: true),
-							cropFab(active: parent.project.pathCroppedPic.isEmpty && parent.project.pathRawPic.isNotEmpty, completed: parent.project.pathCroppedPic.isNotEmpty),
-							lineDiv(show: true),
-							measureFab(active: parent.project.pathCroppedPic.isNotEmpty, completed: parent.project.markers != null)
-						],
-					),
-				)
-			],
+		return WillPopScope(
+      onWillPop: () => portraitModeOnly().then((_) => true),
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          Positioned(
+            width: MediaQuery.of(context).size.width,
+            bottom: 20,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: content()..add(fab()),
+                ),
+                lineDiv(show: true),
+                cropFab(active: parent!.project.pathCroppedPic.isEmpty && parent!.project.pathRawPic.isNotEmpty, completed: parent!.project.pathCroppedPic.isNotEmpty),
+                lineDiv(show: true),
+                measureFab(active: parent!.project.pathCroppedPic.isNotEmpty, completed: parent?.project.markers != null)
+              ],
+            ),
+          )
+        ],
+      ),
 		);
 	}
 }

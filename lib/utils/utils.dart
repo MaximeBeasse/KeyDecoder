@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:moor_flutter/moor_flutter.dart';
 
 /// blocks rotation; sets orientation to: portrait
 Future landscapeModeOnly() {
@@ -20,21 +19,28 @@ Future enableRotation() {
 	]);
 }
 
+Future portraitModeOnly() {
+	return SystemChrome.setPreferredOrientations([
+		DeviceOrientation.portraitDown,
+		DeviceOrientation.portraitUp,
+	]);
+}
+
 class VisibleButton extends StatelessWidget {
 
-  	final bool visible;
+  final bool visible;
 	final void Function() onTap;
 	final double padding;
 	final bool keepSpace;
-  	final Widget child;
+  final Widget child;
 
 	VisibleButton({
-		Key key,
-		this.visible,
-		this.onTap,
+		Key? key,
+		required this.visible,
+		required this.onTap,
 		this.padding = 8.0,
 		this.keepSpace = false,
-		this.child
+		required this.child
 	}) : super(key: key);
 
 	@override
@@ -57,7 +63,7 @@ class VisibleButton extends StatelessWidget {
 
 class RoundIconContainer extends StatelessWidget {
 
-	RoundIconContainer({Key key, this.color, this.size = 40, this.padding = 4.0, this.tick = false, this.child}) : super(key: key);
+	RoundIconContainer({Key? key, required this.color, this.size = 40, this.padding = 4.0, this.tick = false, required this.child}) : super(key: key);
 
 	final Color color;
 
@@ -101,8 +107,8 @@ class RoundIconContainer extends StatelessWidget {
 class InvertedColorText extends StatelessWidget {
 
 	InvertedColorText({
-		Key key,
-		this.text
+		Key? key,
+		required this.text
 	}) : super(key: key);
 
 	final Text text;
@@ -119,7 +125,7 @@ class InvertedColorText extends StatelessWidget {
 
 List<Offset> fromBlob(Uint8List blob) {
 	Float64x2List lf2 = Float64x2List.view(blob.buffer);
-	List<Offset> res = List<Offset>();
+	List<Offset> res = <Offset>[];
 	lf2.forEach((elt) {
 		res.add(Offset(elt.x, elt.y));
 	});

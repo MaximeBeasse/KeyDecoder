@@ -8,6 +8,7 @@
 .buildlog/
 .history
 .svn/
+.fvm/
 
 # IntelliJ related
 *.iml
@@ -44,3 +45,7 @@ app.*.map.json
 android/key.properties
 
 *.keystore
+
+*.bat
+*.old
+*.so

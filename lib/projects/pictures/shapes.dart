@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart' hide Rect;
 import 'dart:ui' as ui;
 import 'package:keydecoder/utils/gesture_x_detector.dart';
-import 'package:vector_math/vector_math_64.dart' hide Colors;
 
 abstract class Shape {
 
@@ -60,15 +59,15 @@ class Line extends Shape {
 		fixAngle = true;
 		mAngle = l.mAngle + pi/2;
 		a = Offset.fromDirection(mAngle) + p;
-		b = xtersect(l);
+		b = xtersect(l)!;
 	}
 
 	bool fixAngle = false;
 
-	Offset a;
-	Offset b;
+	late Offset a;
+	late Offset b;
 
-	double mAngle;
+	late double mAngle;
 
 	double computeAngle() {
 		return (b-a).direction;
@@ -106,7 +105,7 @@ class Line extends Shape {
 		}
 	*/
 
-	Offset xtersect(Line other) {
+	Offset? xtersect(Line other) {
 		if ((((mAngle - other.mAngle) % pi) + pi) % pi == 0) return null;
 		if (((mAngle % pi) + pi) % pi == pi/2.0) {
 			// vertical line at x = a.dx
@@ -122,7 +121,7 @@ class Line extends Shape {
 		return Offset(x, m0 * (x - a.dx) + a.dy);
 	}
 	
-	List<Offset> xtersectList(List<Line> others, {ui.Rect bounds}) {
+	List<Offset> xtersectList(List<Line> others, {ui.Rect? bounds}) {
 		
 		var m0 = tan(mAngle); // Line 0: y = m0 (x - a.dx) + a.dy
 		bool thisIsVertical = (((mAngle % pi) + pi) % pi == pi/2.0);
@@ -204,7 +203,7 @@ class RotatedRect extends Shape {
 		vertices = ui.Vertices(ui.VertexMode.triangleFan, summits);
 	}
 
-	ui.Vertices vertices;
+	late ui.Vertices vertices;
 
 	@override
 	void draw(Canvas canvas, BuildContext context) {
@@ -279,15 +278,14 @@ class Crosshair extends Shape {
 
 	final double baseSize;
 	double size;
-	RotatedRect rr;
 
 	double angle;
 
-	Offset measures;
+	Offset? measures;
 
-	TextPainter textPainter;
-	TextStyle textStyle;
-	TextSpan textSpan;
+	late TextPainter textPainter;
+	late TextStyle textStyle;
+	late TextSpan textSpan;
 
 	static Paint get markerPaint => Paint()
 			..color = Color(0xFFCCCCCC)
@@ -324,19 +322,19 @@ class Crosshair extends Shape {
 			);
 			textPainter.layout();
 			
-			double sign = measures.dy.sign;
+			double sign = measures!.dy.sign;
 			
 			// Main measures
-			String mainStr = measures.dy.abs().toStringAsFixed(3);
-			Color mainColor = Colors.red[700];
+			String mainStr = measures!.dy.abs().toStringAsFixed(3);
+			Color mainColor = Colors.red.shade700;
 			
 			drawText(canvas, mainStr, mainColor, center, sign * ((sign < 0) ? (-size) : (-textPainter.width - size)), sign * ((sign < 0) ? (textPainter.height / 2) : (-textPainter.height / 2)), angle + pi/2);
 
-			sign = measures.dx.sign;
+			sign = measures!.dx.sign;
 
 			// Cross measures
-			String crossStr = measures.dx.abs().toStringAsFixed(3);
-			Color crossColor = Colors.blue[700];
+			String crossStr = measures!.dx.abs().toStringAsFixed(3);
+			Color crossColor = Colors.blue.shade700;
 			
 			drawText(canvas, crossStr, crossColor, center, sign * ((sign < 0) ? (-size) : (-textPainter.width - size)), sign * ((sign < 0) ? (textPainter.height / 2) : (-textPainter.height / 2)), angle);
 		}

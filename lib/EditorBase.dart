@@ -1,10 +1,7 @@
 import 'dart:io';
-import 'dart:ui';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:moor_flutter/moor_flutter.dart';
 import 'package:provider/provider.dart';
 import 'projects/pictures/shapes.dart';
 import 'utils/gesture_x_detector.dart';
@@ -27,15 +24,12 @@ class ShapeNotifier extends ChangeNotifier {
 	List<Shape> get all => miscellaneous + lineShapes + draggableShapes + markers;
 
 	void rescaleDelta(double scaleDelta) {
-		all?.forEach((element) {
-			if (element == null)
-				return;
-				
+		all.forEach((element) {
 			if (element is Circle)
 				element.radius = element.radius / scaleDelta;
 
 			if (element is Crosshair) {
-				if (element.textStyle?.fontSize != null)
+				if (element.textStyle.fontSize != null)
 					element.textPainter.textScaleFactor /= scaleDelta;
 			}
 
@@ -43,16 +37,14 @@ class ShapeNotifier extends ChangeNotifier {
 	}
 
 	void rescale(double scale) {
-		all?.forEach((element) {
-			if (element == null)
-				return;
+		all.forEach((element) {
 
 			if (element is Crosshair) {
 				element.paint.strokeWidth = Crosshair.strokeWidth / scale;
 				element.size = element.baseSize / scale;
 			}
 			else
-				element.paint?.strokeWidth = Shape.strokeWidth / scale;
+				element.paint.strokeWidth = Shape.strokeWidth / scale;
 			
 		});
 	}
@@ -68,7 +60,7 @@ class EditorPainter extends CustomPainter {
 	EditorPainter(this.context, {this.shapes});
 
 	final BuildContext context;
-	final List<Shape> shapes;
+	final List<Shape?>? shapes;
 
 	@override
 	void paint(Canvas canvas, Size size) {
@@ -76,7 +68,7 @@ class EditorPainter extends CustomPainter {
 		if (shapes == null)
 			return;
 
-		for (var shape in shapes) {
+		for (var shape in shapes!) {
 			if (shape == null || shape.hidden)
 				continue;
 			shape.draw(canvas, context);
@@ -88,10 +80,10 @@ class EditorPainter extends CustomPainter {
 }
 
 class _ValueUpdater<T> {
-	final T Function(T oldValue, T newValue) onUpdate;
-	T value;
+	final T Function(T? oldValue, T? newValue) onUpdate;
+	T? value;
 
-	_ValueUpdater({this.onUpdate});
+	_ValueUpdater({required this.onUpdate});
 
 	T update(T newValue) {
 		T updated = onUpdate(value, newValue);
@@ -103,9 +95,9 @@ class _ValueUpdater<T> {
 class EditorBase extends StatefulWidget {
 
 	EditorBase({
-		Key key,
-		this.imageData,
-		this.shapes,
+		Key? key,
+		required this.imageData,
+		required this.shapes,
 		this.portrait = false,
 		this.onInitialization,
 		this.onRotation,
@@ -113,8 +105,8 @@ class EditorBase extends StatefulWidget {
 	}) : super(key: key);
 
 	EditorBase.fromFile({
-		Key key,
-		File imageFile,
+		Key? key,
+		required File imageFile,
 		this.shapes,
 		this.portrait = false,
 		this.onInitialization,
@@ -122,20 +114,17 @@ class EditorBase extends StatefulWidget {
 		this.onTap
 	}) : imageData = imageFile.readAsBytesSync(), super(key: key);
 
-	@required
 	final Uint8List imageData;
 
-	@required
-	final ShapeNotifier shapes;
+	final ShapeNotifier? shapes;
 
-	@required
 	final bool portrait;
 
-	final void Function() onInitialization;
+	final void Function()? onInitialization;
 
-	final void Function(double) onRotation;
+	final void Function(double)? onRotation;
 
-	final void Function(Offset) onTap;
+	final void Function(Offset)? onTap;
 
 	/// touch radius in centimeter
 	static const double touchDiameterCm = 0.60;
@@ -149,12 +138,12 @@ class EditorBase extends StatefulWidget {
 	static const double strokeWidth = Shape.strokeWidth;
 
 	static Future initEditorBase() async {
-		await SystemChrome.setEnabledSystemUIOverlays([]);
+		await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: [SystemUiOverlay.bottom]);
 		return landscapeModeOnly();
 	}
 
 	static Future disposeEditorBase() async {
-		await SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+		await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
 		return enableRotation();
 	}
 
@@ -166,54 +155,58 @@ class EditorBaseState extends State<EditorBase> {
 
 	GlobalKey painterKey = GlobalKey();
 
-	void Function() onInitialization;
+	void Function()? onInitialization;
 
-	Circle _drag;
+	Circle? _drag;
 
 	Matrix4 translationDeltaMatrix = Matrix4.identity();
 	Matrix4 scaleDeltaMatrix = Matrix4.identity();
 	Matrix4 rotationDeltaMatrix = Matrix4.identity();
 	Matrix4 matrix = Matrix4.identity();
 
-	MediaQueryData _mediaQuery;
-	Size _mediaQuerySize;
+	MediaQueryData? _mediaQuery;
+	Size? _mediaQuerySize;
 
 	double _initScale = 1.0;
 
-	bool _fromPortrait;
+	bool? _fromPortrait;
 
-	Size _imageSize;
+	Size? _imageSize;
 	
 	GlobalKey _imageKey = GlobalKey(debugLabel: 'image global key');
 	GlobalKey _baseKey = GlobalKey(debugLabel: 'base global key');
 
-	RenderBox get imageRenderBox => _imageKey?.currentContext?.findRenderObject();
+	RenderBox? get imageRenderBox => _imageKey.currentContext?.findRenderObject() as RenderBox?;
 
-	RenderObject get ancestor => _baseKey?.currentContext?.findRenderObject();
+	RenderObject? get ancestor => _baseKey.currentContext?.findRenderObject();
 
-	double get scaleFactor => imageRenderBox.getTransformTo(ancestor).getColumn(0).length;
+	double? get scaleFactor => imageRenderBox?.getTransformTo(ancestor).getColumn(0).length;
 
-	double get isoRatio => (ISOheight / _imageSize.height);
+	double get isoRatio => _imageSize != null ? (ISOheight / _imageSize!.height) : 0;
 
 	double px2mm(double dist) {
         return dist * isoRatio;
     }
 
 	double get angle {
-		Matrix4 m = imageRenderBox.getTransformTo(null);	
-		Matrix3 m3 = m.getRotation().scaled(1/scaleFactor);
+		Matrix4 m = imageRenderBox!.getTransformTo(null);	
+		Matrix3 m3 = m.getRotation().scaled(1/scaleFactor!);
 		double res = acos((m3.trace()-1)/2);
 		return res.isNaN ? pi : res;
 	}
 
+  bool _editorLoaded = false;
+
 	@override
 	void initState() {
 
-		img.Image image = img.decodeImage(widget.imageData);
-		_imageSize = Size(image.width.toDouble(), image.height.toDouble());
+    EditorBase.initEditorBase().then((value) => setState(() => _editorLoaded = true));
 
-		if(widget.portrait && _imageSize.width > _imageSize.height)
-			_imageSize = _imageSize.flipped;
+		img.Image? image = img.decodeImage(widget.imageData);
+		_imageSize = Size(image!.width.toDouble(), image.height.toDouble());
+
+		if(widget.portrait && _imageSize!.width > _imageSize!.height)
+			_imageSize = _imageSize!.flipped;
 
 		onInitialization = widget.onInitialization;
 
@@ -227,33 +220,33 @@ class EditorBaseState extends State<EditorBase> {
 
 	Offset globalToLocal(Offset o) {
 
-		if (imageRenderBox == null)
+		if (imageRenderBox == null || _fromPortrait == null)
 			return Offset.zero;
 
 		Offset out = (widget.portrait) ? Offset(o.dy, o.dx) : Offset(o.dx, o.dy);
 
-		Offset globalZero = imageRenderBox.localToGlobal(Offset.zero, ancestor: ancestor);
-		Offset localZero = imageRenderBox.globalToLocal(Offset.zero, ancestor: ancestor);
+		Offset globalZero = imageRenderBox!.localToGlobal(Offset.zero, ancestor: ancestor);
+		Offset localZero = imageRenderBox!.globalToLocal(Offset.zero, ancestor: ancestor);
 
-		if (_fromPortrait) {
+		if (_fromPortrait!) {
 			if (widget.portrait) {
-				out = out.scale(-1, 1).translate(_mediaQuerySize.shortestSide, 0);
-				out = imageRenderBox.globalToLocal(out, ancestor: ancestor);
+				out = out.scale(-1, 1).translate(_mediaQuerySize!.shortestSide, 0);
+				out = imageRenderBox!.globalToLocal(out, ancestor: ancestor);
 			} else {
-				localZero = invertOffset(imageRenderBox.globalToLocal(globalZero, ancestor: ancestor));
+				localZero = invertOffset(imageRenderBox!.globalToLocal(globalZero, ancestor: ancestor));
 				if (matrix.isIdentity())
 					out += globalZero;
-				out = imageRenderBox.globalToLocal(out, ancestor: ancestor);
+				out = imageRenderBox!.globalToLocal(out, ancestor: ancestor);
 			}
 		} else {
 			if (widget.portrait) {
 				localZero = Offset.zero;
-				out = out.scale(-1, 1).translate(_mediaQuerySize.shortestSide, 0);
+				out = out.scale(-1, 1).translate(_mediaQuerySize!.shortestSide, 0);
 			} else {
-				localZero = imageRenderBox.globalToLocal(globalZero, ancestor: ancestor);
+				localZero = imageRenderBox!.globalToLocal(globalZero, ancestor: ancestor);
 			}
 
-			out = imageRenderBox.globalToLocal(out, ancestor: ancestor) - localZero;
+			out = imageRenderBox!.globalToLocal(out, ancestor: ancestor) - localZero;
 		}
 
 		return out;
@@ -261,7 +254,7 @@ class EditorBaseState extends State<EditorBase> {
 
 	void _onMoveStart(int pointer, Offset localPos, Offset position) {
 
-		if (localPos == null || imageRenderBox == null)
+		if (imageRenderBox == null)
 			return;
 
 		int closest = -1;
@@ -269,7 +262,7 @@ class EditorBaseState extends State<EditorBase> {
 		
 		Offset transformed = globalToLocal(localPos);
 
-		final _draggable = widget.shapes.draggableShapes;
+		final _draggable = widget.shapes!.draggableShapes;
 
 		for (int i = 0; i < _draggable.length; i++) {
 			Circle elt = _draggable[i];
@@ -286,7 +279,7 @@ class EditorBaseState extends State<EditorBase> {
 
 		if (closest < 0) {
 			if (widget.onTap != null)
-				widget.onTap(transformed);
+				widget.onTap!(transformed);
 			return;
 		}
 
@@ -307,12 +300,12 @@ class EditorBaseState extends State<EditorBase> {
 				matrix = translationDeltaMatrix * matrix;
 			});
 
-			widget.shapes.changed();
+			widget.shapes!.changed();
 
 		} else {
 			setState(() {
-				_drag.center = globalToLocal(position);
-				widget.shapes.changed();
+				_drag!.center = globalToLocal(position);
+				widget.shapes!.changed();
 			});
 		}
 	}
@@ -326,17 +319,23 @@ class EditorBaseState extends State<EditorBase> {
 	@override
 	Widget build(BuildContext context) {
 
+    if (!_editorLoaded) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
 		if (_mediaQuery == null) {
 
 			_mediaQuery = MediaQuery.of(context);
-			_mediaQuerySize = _mediaQuery.size;
+			_mediaQuerySize = _mediaQuery!.size;
 
-			if ((_mediaQuerySize.width > _mediaQuerySize.height && _imageSize.width > _imageSize.height)
-				 || (_mediaQuerySize.width < _mediaQuerySize.height && _imageSize.width < _imageSize.height)) {
+			if ((_mediaQuerySize!.width > _mediaQuerySize!.height && _imageSize!.width > _imageSize!.height)
+				 || (_mediaQuerySize!.width < _mediaQuerySize!.height && _imageSize!.width < _imageSize!.height)) {
 				// When launching portrait in portrait mode
 				// or launching landscape in landscape mode
 				_fromPortrait = widget.portrait;
-				_mediaQuerySize = _mediaQuerySize.flipped;
+				_mediaQuerySize = _mediaQuerySize!.flipped;
 			}
 			else {
 				// When launching portrait in landscape mode
@@ -344,15 +343,15 @@ class EditorBaseState extends State<EditorBase> {
 				_fromPortrait = !widget.portrait;
 			}
 
-			_initScale = _mediaQuerySize.shortestSide / _imageSize.shortestSide;
+			_initScale = _mediaQuerySize!.shortestSide / _imageSize!.shortestSide;
 		}
 
-		Size imageSize = _imageSize;
+		Size imageSize = _imageSize!;
 
 		return WillPopScope(
 			onWillPop: _onWillPop,
 			child: ChangeNotifierProvider<ShapeNotifier>.value(
-				value: widget.shapes,
+				value: widget.shapes!,
 				child: XGestureDetector(
 					onScaleStart: onScaleStart,
 					onScaleUpdate: onScaleUpdate,
@@ -394,7 +393,7 @@ class EditorBaseState extends State<EditorBase> {
 															else {
 																if (onInitialization != null) {
 																	WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-																		onInitialization();
+																		onInitialization!();
 																		onInitialization = null;
 																	});
 																}
@@ -410,7 +409,7 @@ class EditorBaseState extends State<EditorBase> {
 														builder: (painterContext, value, child) {
 															return CustomPaint(
 																key: painterKey,
-																size: _imageSize,
+																size: _imageSize!,
 																painter: EditorPainter(painterContext, shapes: value.all),
 															);
 														},
@@ -434,13 +433,13 @@ class EditorBaseState extends State<EditorBase> {
 	}
 
 	_ValueUpdater<Offset> translationUpdater = _ValueUpdater(
-		onUpdate: (oldVal, newVal) => newVal - oldVal,
+		onUpdate: (oldVal, newVal) => newVal! - oldVal!,
 	);
 	_ValueUpdater<double> rotationUpdater = _ValueUpdater(
-		onUpdate: (oldVal, newVal) => newVal - oldVal,
+		onUpdate: (oldVal, newVal) => newVal! - oldVal!,
 	);
 	_ValueUpdater<double> scaleUpdater = _ValueUpdater(
-		onUpdate: (oldVal, newVal) => newVal / oldVal,
+		onUpdate: (oldVal, newVal) => newVal! / oldVal!,
 	);
 
 	void onScaleStart(Offset focalPoint) {
@@ -472,13 +471,13 @@ class EditorBaseState extends State<EditorBase> {
 			scaleDeltaMatrix = _scale(scaleDelta, focalPoint);
 			matrix = scaleDeltaMatrix * matrix;
 
-			widget.shapes.rescaleDelta(scaleDelta);
-			widget.shapes.rescale(scaleFactor);
+			widget.shapes!.rescaleDelta(scaleDelta);
+			widget.shapes!.rescale(scaleFactor!);
 		}
 
 		// handle matrix rotating
 		if (rotation != 0.0) {
-			if (rotationUpdater.value.isNaN) {
+			if (rotationUpdater.value!.isNaN) {
 				rotationUpdater.value = rotation;
 			} else {
 				double rotationDelta = rotationUpdater.update(rotation);
@@ -486,11 +485,11 @@ class EditorBaseState extends State<EditorBase> {
 				matrix = rotationDeltaMatrix * matrix;
 
 				if(widget.onRotation != null)
-					widget.onRotation(rotationDelta);
+					widget.onRotation!(rotationDelta);
 			}
 		}
 
-		widget.shapes.changed();
+		widget.shapes!.changed();
 
 		setState(() {});
   	}

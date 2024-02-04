@@ -32,11 +32,12 @@ class App extends StatelessWidget {
 }
 
 class Routes {
-    static Route<dynamic> onGenerateRoute(RouteSettings settings){
-        switch (settings.name.toLowerCase()){
-            case MenuPage.routeName: 
-				return MenuPage.route(settings.arguments);
-            case ProjectPage.routeName: 
+    static Route<dynamic>? onGenerateRoute(RouteSettings settings){
+
+      switch (settings.name?.toLowerCase()){
+      case MenuPage.routeName: 
+          return MenuPage.route(settings.arguments);
+      case ProjectPage.routeName: 
 				return ProjectPage.route(settings.arguments);
 			case CropPage.routeName: 
 				return CropPage.route(settings.arguments);
@@ -44,6 +45,6 @@ class Routes {
 				return MeasurePage.route(settings.arguments);
 			default:
 				return null;
-        }
+      }
     }
 }

@@ -1,7 +1,7 @@
-import 'package:moor/ffi.dart';
+import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
-import 'package:moor/moor.dart';
+import 'package:drift/drift.dart';
 import 'dart:io';
 
 part 'projects.g.dart';
@@ -29,29 +29,29 @@ LazyDatabase _openConnection() {
 		// put the database file, called db.sqlite here, into the documents folder
 		// for your app.
 		final dbFolder = await getApplicationDocumentsDirectory();
-		final file = File(p.join(dbFolder.path, 'projectsdb.sqlite'));
-		return VmDatabase(file, logStatements: true);
+		File file = File(p.join(dbFolder.path, 'projectsdb.sqlite'));
+		return NativeDatabase(file, logStatements: true);
 	});
 }
 
-@UseMoor(tables: [Projects], daos: [ProjectsDao])
+@DriftDatabase(tables: [Projects], daos: [ProjectsDao])
 class ProjectsDatabase extends _$ProjectsDatabase {
 
 	// we tell the database where to store the data with this constructor
 	ProjectsDatabase() : super(_openConnection());
 
-	static ProjectsDatabase _instance;
+	static ProjectsDatabase? _instance;
 
 	static ProjectsDatabase get db {
 		if(_instance == null)
 			_instance = ProjectsDatabase();
-		return _instance;
+		return _instance!;
 	}
 
 	static ProjectsDao get dao {
 		if(_instance == null)
 			_instance = ProjectsDatabase();
-		return _instance.projectsDao;
+		return _instance!.projectsDao;
 	}
 
 	@override
@@ -83,12 +83,12 @@ class ProjectsDatabase extends _$ProjectsDatabase {
 	);
 }
 
-@UseDao(tables: [Projects])
+@DriftAccessor(tables: [Projects])
 class ProjectsDao extends DatabaseAccessor<ProjectsDatabase> with _$ProjectsDaoMixin {
 
 	ProjectsDao(ProjectsDatabase db) : super(db);
 
-	Future<int> get nbProjects {
+	Future<int?> get nbProjects {
 		final count = projects.id.count();
 		final query = selectOnly(projects)
 			..addColumns([count]);

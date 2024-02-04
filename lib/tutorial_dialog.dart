@@ -4,7 +4,7 @@ class TutorialDialog extends StatefulWidget {
 
 	TutorialDialog({this.onlyPage});
 
-	final int onlyPage;
+	final int? onlyPage;
 
 	@override
 	_TutorialDialogState createState() => _TutorialDialogState();
@@ -12,7 +12,7 @@ class TutorialDialog extends StatefulWidget {
 
 class _TutorialDialogState extends State<TutorialDialog> {
 
-	int _curPage;
+	int _curPage = 0;
 
 	@override
 	void initState() {
@@ -80,6 +80,15 @@ Once done, you can validate and retrieve your measures on your project's page.
 				],
 			)
 		},
+    {
+			'title' : Text('Delete project', style: TextStyle(fontWeight: FontWeight.bold),),
+			'content' : Column(
+				mainAxisSize: MainAxisSize.min,
+				children: [
+					Text('''You can delete a project by swiping its tile in the project list to the left''', textAlign: TextAlign.justify,),
+				],
+			)
+		},
 	];
 
 	@override
@@ -91,14 +100,14 @@ Once done, you can validate and retrieve your measures on your project's page.
 				actions: (_curPage > 0) ? ([
 					Visibility(
 						visible: widget.onlyPage == null,
-						child: FlatButton(
+						child: TextButton(
 							onPressed: () {
 								setState(() => _curPage--);
 							},
 							child: Text('Back'),
 						),
 					),
-					FlatButton(
+					TextButton(
 						onPressed: () {
 							if (_curPage + 1 >= _texts.length || widget.onlyPage != null)
 								Navigator.pop(context);
@@ -108,7 +117,7 @@ Once done, you can validate and retrieve your measures on your project's page.
 						child: Text('Continue'),
 					),
 				]) : ([
-					FlatButton(
+					TextButton(
 						onPressed: () {
 							if (_curPage + 1 >= _texts.length || widget.onlyPage != null)
 								Navigator.pop(context);

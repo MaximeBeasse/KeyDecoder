@@ -2,12 +2,12 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart' show MdiIcons;
 import '../utils/utils.dart';
 import 'model/projects.dart';
 
 class ProjectThumbnail extends StatelessWidget {
-	ProjectThumbnail({Key key, this.project}) : super(key: key);
+	ProjectThumbnail({Key? key, required this.project}) : super(key: key);
   	
 	final Project project;
 
@@ -36,9 +36,9 @@ class ProjectThumbnail extends StatelessWidget {
 
 Widget projectStepper(Project project) {
 
-	final Color _colorDisable = Colors.grey[600];
-	final Color _colorActive = Colors.lightBlue[400];
-	final Color _colorDone = Colors.lightGreen[400];
+	final Color _colorDisable = Colors.grey.shade600;
+	final Color _colorActive = Colors.lightBlue.shade400;
+	final Color _colorDone = Colors.lightGreen.shade400;
 
 	int curStep = 0;
 

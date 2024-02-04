@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:keydecoder/disclamer_dialog.dart';
 import 'package:keydecoder/utils/utils.dart';
-import 'package:moor_flutter/moor_flutter.dart' as moor;
+import 'package:drift/drift.dart' as drift;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'ProjectPage.dart';
 import 'projects/model/projects.dart';
 import 'package:provider/provider.dart';
@@ -20,7 +20,7 @@ class MenuPage extends StatefulWidget {
 	final String title = 'Projects';
 
 	static const routeName = '/menu';
-	static Route<dynamic> route(Object args) {
+	static Route<dynamic> route(Object? args) {
 		return MaterialPageRoute(
             builder: (BuildContext context) => MenuPage(),
         );
@@ -61,9 +61,9 @@ class MenuPageState extends State<MenuPage> {
 		final dao = ProjectsDatabase.dao;
 
 		final nb = (await dao.allProjects).length + 1;
-		final newProject = ProjectCompanion(
-			title: moor.Value("Project #$nb"), 
-			description: moor.Value(""),
+		final newProject = ProjectsCompanion(
+			title: drift.Value("Project #$nb"), 
+			description: drift.Value(""),
 		);
 		
 		dao.insertProject(newProject).then((id) async {
@@ -74,13 +74,13 @@ class MenuPageState extends State<MenuPage> {
   	@override
   	Widget build(BuildContext context) {
 		SharedPreferences.getInstance().then((prefs) async {
-			if (!prefs.containsKey('discaimer_displayed') || !prefs.getBool('discaimer_displayed')) {
+			if (!prefs.containsKey('discaimer_displayed') || !prefs.getBool('discaimer_displayed')!) {
 				await _showDisclaimer();
 				prefs.setBool('discaimer_displayed', true);
 				await Future.delayed(Duration(seconds: 1));
 			}
 
-			if (!prefs.containsKey('tutorial_displayed') || !prefs.getBool('tutorial_displayed')) {
+			if (!prefs.containsKey('tutorial_displayed') || !prefs.getBool('tutorial_displayed')!) {
 				await _showTutorial();
 				prefs.setBool('tutorial_displayed', true);
 			}
@@ -140,13 +140,13 @@ class MenuPageState extends State<MenuPage> {
 	}
 
 	openProject(item) {
-		ScaffoldMessenger.of(context).removeCurrentSnackBar();
+		ScaffoldMessenger.of(context).hideCurrentSnackBar();
 		Navigator.pushNamed(context, ProjectPage.routeName, arguments: item);
 	}
 
 	deleteProject(Project item, ProjectsDao dao) {
 		dao.deleteProject(item);
-		ScaffoldMessenger.of(context).removeCurrentSnackBar();
+		ScaffoldMessenger.of(context).hideCurrentSnackBar();
 		ScaffoldFeatureController<SnackBar, SnackBarClosedReason> controller = ScaffoldMessenger.of(context)
         	.showSnackBar(SnackBar(
 				content: Text("${item.title} deleted"),
@@ -188,22 +188,24 @@ class MenuPageState extends State<MenuPage> {
 				onTap: () => openProject(item),
 				child: Slidable(
 					key: ValueKey(item.id),
-					actionPane: SlidableDrawerActionPane(),
 					child: ProjectThumbnail(project: item),
 					closeOnScroll: true,
-					actionExtentRatio: 0.0,
-					secondaryActions: [
-						IconSlideAction(
-							caption: 'Delete',
-							color: Colors.red,
-							icon: Icons.delete,
+					endActionPane: ActionPane(
+						motion: const DrawerMotion(),
+						extentRatio: 0.35,
+						children: [
+							SlidableAction(
+								onPressed: (_) => deleteProject(item, dao),
+								icon: Icons.delete, 
+								label: 'Delete', 
+								backgroundColor: Colors.red
+							)
+						],
+						dismissible: DismissiblePane(
+							onDismissed: () => deleteProject(item, dao),
+							closeOnCancel: true,
+							dismissThreshold: 0.6,
 						),
-					],
-					dismissal: SlidableDismissal(
-						dismissThresholds: { SlideActionType.secondary : 0.5 },
-						child: SlidableDrawerDismissal(),
-						onDismissed: (direction) => deleteProject(item, dao),
-						closeOnCanceled: true,
 					),
 				),
 			),
@@ -289,7 +291,7 @@ Additionnaly, the need for an ISO sized card as a dimensionnal reference prevent
 						),
 					),
 					actions: [
-						FlatButton(
+						TextButton(
 							child: Text('Close'),
 							onPressed: () => Navigator.pop(context),
 						)
@@ -311,7 +313,7 @@ Additionnaly, the need for an ISO sized card as a dimensionnal reference prevent
 				height: MediaQuery.of(context).size.width / 8,
 				fit: BoxFit.scaleDown,
 			),
-			applicationVersion: "v1.0",
+			applicationVersion: "v1.1.0",
 			applicationLegalese: "© AT Security SAS",
 			children: [
 				Text("\nApp developped by :", textScaleFactor: txtscale),
@@ -319,7 +321,11 @@ Additionnaly, the need for an ISO sized card as a dimensionnal reference prevent
 				Center(
 					child: InkWell(
 						onTap: () {
-							canLaunch('https://twitter.com/maxime_beasse').then((canLaunch) => (canLaunch) ? launch('https://twitter.com/maxime_beasse') : null);
+              try {
+							  launchUrlString('https://twitter.com/maxime_beasse');
+              } catch (e) {
+                print(e);
+              }
 						},
 						child: Text("@maxime_beasse", style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline,), textScaleFactor: txtscale)
 					),
@@ -329,23 +335,38 @@ Additionnaly, the need for an ISO sized card as a dimensionnal reference prevent
 				Center(
 					child: InkWell(
 						onTap: () {
-							canLaunch('https://twitter.com/0x2f2f').then((canLaunch) => (canLaunch) ? launch('https://twitter.com/0x2f2f') : null);
+              try {
+							  launchUrlString('https://twitter.com/0x2f2f');
+              } catch (e) {
+                print(e);
+              }
 						},
 						child: Text("@0x2f2f", style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline,), textScaleFactor: txtscale),
 					),
 				),
 				Text("\n\n", textScaleFactor: txtscale/4),
-				InkWell(
-					onTap: () {
-						canLaunch('https://github.com/MaximeBeasse/KeyDecoder').then((canLaunch) => (canLaunch) ? launch('https://github.com/MaximeBeasse/KeyDecoder') : null);
-					},
-					child: Text("GitHub Repository", style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline,), textScaleFactor: txtscale),
-				),
+				Align(
+          alignment: Alignment.centerLeft,
+          child: InkWell(
+            onTap: () {
+              try {
+                launchUrlString('https://github.com/MaximeBeasse/KeyDecoder');
+              } catch (e) {
+                print(e);
+              }
+            },
+            child: Text("GitHub Repository", style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline,), textScaleFactor: txtscale),
+          ),
+        ),
 				Text("\n\nIn partnership with FrenchKey ", textScaleFactor: txtscale),
 				Center(
 					child: InkWell(
 						onTap: () {
-							canLaunch('https://twitter.com/frenchkey_fr').then((canLaunch) => (canLaunch) ? launch('https://twitter.com/frenchkey_fr') : null);
+              try {
+							  launchUrlString('https://twitter.com/frenchkey_fr');
+              } catch (e) {
+                print(e);
+              }
 						},
 						child: Text("@FrenchKey_fr", style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline,), textScaleFactor: txtscale),
 					),
@@ -359,7 +380,7 @@ Additionnaly, the need for an ISO sized card as a dimensionnal reference prevent
 			context: context,
 			builder: (context) => AlertDialog(
 				actions: [
-					FlatButton(
+					TextButton(
 						child: Text('Close'),
 						onPressed: () => Navigator.pop(context),
 					)

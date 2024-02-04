@@ -2,80 +2,216 @@
 
 part of 'projects.dart';
 
-// **************************************************************************
-// MoorGenerator
-// **************************************************************************
+// ignore_for_file: type=lint
+class $ProjectsTable extends Projects with TableInfo<$ProjectsTable, Project> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProjectsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(''));
+  static const VerificationMeta _pathRawPicMeta =
+      const VerificationMeta('pathRawPic');
+  @override
+  late final GeneratedColumn<String> pathRawPic = GeneratedColumn<String>(
+      'path_raw_pic', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(''));
+  static const VerificationMeta _pathCroppedPicMeta =
+      const VerificationMeta('pathCroppedPic');
+  @override
+  late final GeneratedColumn<String> pathCroppedPic = GeneratedColumn<String>(
+      'path_cropped_pic', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(''));
+  static const VerificationMeta _markersMeta =
+      const VerificationMeta('markers');
+  @override
+  late final GeneratedColumn<Uint8List> markers = GeneratedColumn<Uint8List>(
+      'markers', aliasedName, true,
+      type: DriftSqlType.blob, requiredDuringInsert: false);
+  static const VerificationMeta _originXMeta =
+      const VerificationMeta('originX');
+  @override
+  late final GeneratedColumn<double> originX = GeneratedColumn<double>(
+      'origin_x', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _originYMeta =
+      const VerificationMeta('originY');
+  @override
+  late final GeneratedColumn<double> originY = GeneratedColumn<double>(
+      'origin_y', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _angleMeta = const VerificationMeta('angle');
+  @override
+  late final GeneratedColumn<double> angle = GeneratedColumn<double>(
+      'angle', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _isoRatioMeta =
+      const VerificationMeta('isoRatio');
+  @override
+  late final GeneratedColumn<double> isoRatio = GeneratedColumn<double>(
+      'iso_ratio', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        title,
+        description,
+        pathRawPic,
+        pathCroppedPic,
+        markers,
+        originX,
+        originY,
+        angle,
+        isoRatio
+      ];
+  @override
+  String get aliasedName => _alias ?? 'projects';
+  @override
+  String get actualTableName => 'projects';
+  @override
+  VerificationContext validateIntegrity(Insertable<Project> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('path_raw_pic')) {
+      context.handle(
+          _pathRawPicMeta,
+          pathRawPic.isAcceptableOrUnknown(
+              data['path_raw_pic']!, _pathRawPicMeta));
+    }
+    if (data.containsKey('path_cropped_pic')) {
+      context.handle(
+          _pathCroppedPicMeta,
+          pathCroppedPic.isAcceptableOrUnknown(
+              data['path_cropped_pic']!, _pathCroppedPicMeta));
+    }
+    if (data.containsKey('markers')) {
+      context.handle(_markersMeta,
+          markers.isAcceptableOrUnknown(data['markers']!, _markersMeta));
+    }
+    if (data.containsKey('origin_x')) {
+      context.handle(_originXMeta,
+          originX.isAcceptableOrUnknown(data['origin_x']!, _originXMeta));
+    }
+    if (data.containsKey('origin_y')) {
+      context.handle(_originYMeta,
+          originY.isAcceptableOrUnknown(data['origin_y']!, _originYMeta));
+    }
+    if (data.containsKey('angle')) {
+      context.handle(
+          _angleMeta, angle.isAcceptableOrUnknown(data['angle']!, _angleMeta));
+    }
+    if (data.containsKey('iso_ratio')) {
+      context.handle(_isoRatioMeta,
+          isoRatio.isAcceptableOrUnknown(data['iso_ratio']!, _isoRatioMeta));
+    }
+    return context;
+  }
 
-// ignore_for_file: unnecessary_brace_in_string_interps, unnecessary_this
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Project map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Project(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
+      pathRawPic: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}path_raw_pic'])!,
+      pathCroppedPic: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}path_cropped_pic'])!,
+      markers: attachedDatabase.typeMapping
+          .read(DriftSqlType.blob, data['${effectivePrefix}markers']),
+      originX: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}origin_x']),
+      originY: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}origin_y']),
+      angle: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}angle']),
+      isoRatio: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}iso_ratio']),
+    );
+  }
+
+  @override
+  $ProjectsTable createAlias(String alias) {
+    return $ProjectsTable(attachedDatabase, alias);
+  }
+}
+
 class Project extends DataClass implements Insertable<Project> {
-  int id;
-  String title;
-  String description;
-  String pathRawPic;
-  String pathCroppedPic;
-  Uint8List markers;
-  double originX;
-  double originY;
-  double angle;
-  double isoRatio;
-  Project(
-      {@required this.id,
-      @required this.title,
-      @required this.description,
-      @required this.pathRawPic,
-      @required this.pathCroppedPic,
+  final int id;
+  final String title;
+  final String description;
+  final String pathRawPic;
+  final String pathCroppedPic;
+  final Uint8List? markers;
+  final double? originX;
+  final double? originY;
+  final double? angle;
+  final double? isoRatio;
+  const Project(
+      {required this.id,
+      required this.title,
+      required this.description,
+      required this.pathRawPic,
+      required this.pathCroppedPic,
       this.markers,
       this.originX,
       this.originY,
       this.angle,
       this.isoRatio});
-  factory Project.fromData(Map<String, dynamic> data, GeneratedDatabase db,
-      {String prefix}) {
-    final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
-    final stringType = db.typeSystem.forDartType<String>();
-    final uint8ListType = db.typeSystem.forDartType<Uint8List>();
-    final doubleType = db.typeSystem.forDartType<double>();
-    return Project(
-      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
-      title:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}title']),
-      description: stringType
-          .mapFromDatabaseResponse(data['${effectivePrefix}description']),
-      pathRawPic: stringType
-          .mapFromDatabaseResponse(data['${effectivePrefix}path_raw_pic']),
-      pathCroppedPic: stringType
-          .mapFromDatabaseResponse(data['${effectivePrefix}path_cropped_pic']),
-      markers: uint8ListType
-          .mapFromDatabaseResponse(data['${effectivePrefix}markers']),
-      originX: doubleType
-          .mapFromDatabaseResponse(data['${effectivePrefix}origin_x']),
-      originY: doubleType
-          .mapFromDatabaseResponse(data['${effectivePrefix}origin_y']),
-      angle:
-          doubleType.mapFromDatabaseResponse(data['${effectivePrefix}angle']),
-      isoRatio: doubleType
-          .mapFromDatabaseResponse(data['${effectivePrefix}iso_ratio']),
-    );
-  }
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || id != null) {
-      map['id'] = Variable<int>(id);
-    }
-    if (!nullToAbsent || title != null) {
-      map['title'] = Variable<String>(title);
-    }
-    if (!nullToAbsent || description != null) {
-      map['description'] = Variable<String>(description);
-    }
-    if (!nullToAbsent || pathRawPic != null) {
-      map['path_raw_pic'] = Variable<String>(pathRawPic);
-    }
-    if (!nullToAbsent || pathCroppedPic != null) {
-      map['path_cropped_pic'] = Variable<String>(pathCroppedPic);
-    }
+    map['id'] = Variable<int>(id);
+    map['title'] = Variable<String>(title);
+    map['description'] = Variable<String>(description);
+    map['path_raw_pic'] = Variable<String>(pathRawPic);
+    map['path_cropped_pic'] = Variable<String>(pathCroppedPic);
     if (!nullToAbsent || markers != null) {
       map['markers'] = Variable<Uint8List>(markers);
     }
@@ -94,20 +230,13 @@ class Project extends DataClass implements Insertable<Project> {
     return map;
   }
 
-  ProjectCompanion toCompanion(bool nullToAbsent) {
-    return ProjectCompanion(
-      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
-      title:
-          title == null && nullToAbsent ? const Value.absent() : Value(title),
-      description: description == null && nullToAbsent
-          ? const Value.absent()
-          : Value(description),
-      pathRawPic: pathRawPic == null && nullToAbsent
-          ? const Value.absent()
-          : Value(pathRawPic),
-      pathCroppedPic: pathCroppedPic == null && nullToAbsent
-          ? const Value.absent()
-          : Value(pathCroppedPic),
+  ProjectsCompanion toCompanion(bool nullToAbsent) {
+    return ProjectsCompanion(
+      id: Value(id),
+      title: Value(title),
+      description: Value(description),
+      pathRawPic: Value(pathRawPic),
+      pathCroppedPic: Value(pathCroppedPic),
       markers: markers == null && nullToAbsent
           ? const Value.absent()
           : Value(markers),
@@ -126,64 +255,60 @@ class Project extends DataClass implements Insertable<Project> {
   }
 
   factory Project.fromJson(Map<String, dynamic> json,
-      {ValueSerializer serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return Project(
       id: serializer.fromJson<int>(json['id']),
       title: serializer.fromJson<String>(json['title']),
       description: serializer.fromJson<String>(json['description']),
       pathRawPic: serializer.fromJson<String>(json['pathRawPic']),
       pathCroppedPic: serializer.fromJson<String>(json['pathCroppedPic']),
-      markers: serializer.fromJson<Uint8List>(json['markers']),
-      originX: serializer.fromJson<double>(json['originX']),
-      originY: serializer.fromJson<double>(json['originY']),
-      angle: serializer.fromJson<double>(json['angle']),
-      isoRatio: serializer.fromJson<double>(json['isoRatio']),
+      markers: serializer.fromJson<Uint8List?>(json['markers']),
+      originX: serializer.fromJson<double?>(json['originX']),
+      originY: serializer.fromJson<double?>(json['originY']),
+      angle: serializer.fromJson<double?>(json['angle']),
+      isoRatio: serializer.fromJson<double?>(json['isoRatio']),
     );
   }
-  factory Project.fromJsonString(String encodedJson,
-          {ValueSerializer serializer}) =>
-      Project.fromJson(DataClass.parseJson(encodedJson) as Map<String, dynamic>,
-          serializer: serializer);
   @override
-  Map<String, dynamic> toJson({ValueSerializer serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'title': serializer.toJson<String>(title),
       'description': serializer.toJson<String>(description),
       'pathRawPic': serializer.toJson<String>(pathRawPic),
       'pathCroppedPic': serializer.toJson<String>(pathCroppedPic),
-      'markers': serializer.toJson<Uint8List>(markers),
-      'originX': serializer.toJson<double>(originX),
-      'originY': serializer.toJson<double>(originY),
-      'angle': serializer.toJson<double>(angle),
-      'isoRatio': serializer.toJson<double>(isoRatio),
+      'markers': serializer.toJson<Uint8List?>(markers),
+      'originX': serializer.toJson<double?>(originX),
+      'originY': serializer.toJson<double?>(originY),
+      'angle': serializer.toJson<double?>(angle),
+      'isoRatio': serializer.toJson<double?>(isoRatio),
     };
   }
 
   Project copyWith(
-          {int id,
-          String title,
-          String description,
-          String pathRawPic,
-          String pathCroppedPic,
-          Uint8List markers,
-          double originX,
-          double originY,
-          double angle,
-          double isoRatio}) =>
+          {int? id,
+          String? title,
+          String? description,
+          String? pathRawPic,
+          String? pathCroppedPic,
+          Value<Uint8List?> markers = const Value.absent(),
+          Value<double?> originX = const Value.absent(),
+          Value<double?> originY = const Value.absent(),
+          Value<double?> angle = const Value.absent(),
+          Value<double?> isoRatio = const Value.absent()}) =>
       Project(
         id: id ?? this.id,
         title: title ?? this.title,
         description: description ?? this.description,
         pathRawPic: pathRawPic ?? this.pathRawPic,
         pathCroppedPic: pathCroppedPic ?? this.pathCroppedPic,
-        markers: markers ?? this.markers,
-        originX: originX ?? this.originX,
-        originY: originY ?? this.originY,
-        angle: angle ?? this.angle,
-        isoRatio: isoRatio ?? this.isoRatio,
+        markers: markers.present ? markers.value : this.markers,
+        originX: originX.present ? originX.value : this.originX,
+        originY: originY.present ? originY.value : this.originY,
+        angle: angle.present ? angle.value : this.angle,
+        isoRatio: isoRatio.present ? isoRatio.value : this.isoRatio,
       );
   @override
   String toString() {
@@ -203,26 +328,19 @@ class Project extends DataClass implements Insertable<Project> {
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(
-      id.hashCode,
-      $mrjc(
-          title.hashCode,
-          $mrjc(
-              description.hashCode,
-              $mrjc(
-                  pathRawPic.hashCode,
-                  $mrjc(
-                      pathCroppedPic.hashCode,
-                      $mrjc(
-                          markers.hashCode,
-                          $mrjc(
-                              originX.hashCode,
-                              $mrjc(
-                                  originY.hashCode,
-                                  $mrjc(angle.hashCode,
-                                      isoRatio.hashCode))))))))));
+  int get hashCode => Object.hash(
+      id,
+      title,
+      description,
+      pathRawPic,
+      pathCroppedPic,
+      $driftBlobEquality.hash(markers),
+      originX,
+      originY,
+      angle,
+      isoRatio);
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Project &&
           other.id == this.id &&
@@ -230,25 +348,25 @@ class Project extends DataClass implements Insertable<Project> {
           other.description == this.description &&
           other.pathRawPic == this.pathRawPic &&
           other.pathCroppedPic == this.pathCroppedPic &&
-          other.markers == this.markers &&
+          $driftBlobEquality.equals(other.markers, this.markers) &&
           other.originX == this.originX &&
           other.originY == this.originY &&
           other.angle == this.angle &&
           other.isoRatio == this.isoRatio);
 }
 
-class ProjectCompanion extends UpdateCompanion<Project> {
-  Value<int> id;
-  Value<String> title;
-  Value<String> description;
-  Value<String> pathRawPic;
-  Value<String> pathCroppedPic;
-  Value<Uint8List> markers;
-  Value<double> originX;
-  Value<double> originY;
-  Value<double> angle;
-  Value<double> isoRatio;
-  ProjectCompanion({
+class ProjectsCompanion extends UpdateCompanion<Project> {
+  final Value<int> id;
+  final Value<String> title;
+  final Value<String> description;
+  final Value<String> pathRawPic;
+  final Value<String> pathCroppedPic;
+  final Value<Uint8List?> markers;
+  final Value<double?> originX;
+  final Value<double?> originY;
+  final Value<double?> angle;
+  final Value<double?> isoRatio;
+  const ProjectsCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
     this.description = const Value.absent(),
@@ -260,9 +378,9 @@ class ProjectCompanion extends UpdateCompanion<Project> {
     this.angle = const Value.absent(),
     this.isoRatio = const Value.absent(),
   });
-  ProjectCompanion.insert({
+  ProjectsCompanion.insert({
     this.id = const Value.absent(),
-    @required String title,
+    required String title,
     this.description = const Value.absent(),
     this.pathRawPic = const Value.absent(),
     this.pathCroppedPic = const Value.absent(),
@@ -273,16 +391,16 @@ class ProjectCompanion extends UpdateCompanion<Project> {
     this.isoRatio = const Value.absent(),
   }) : title = Value(title);
   static Insertable<Project> custom({
-    Expression<int> id,
-    Expression<String> title,
-    Expression<String> description,
-    Expression<String> pathRawPic,
-    Expression<String> pathCroppedPic,
-    Expression<Uint8List> markers,
-    Expression<double> originX,
-    Expression<double> originY,
-    Expression<double> angle,
-    Expression<double> isoRatio,
+    Expression<int>? id,
+    Expression<String>? title,
+    Expression<String>? description,
+    Expression<String>? pathRawPic,
+    Expression<String>? pathCroppedPic,
+    Expression<Uint8List>? markers,
+    Expression<double>? originX,
+    Expression<double>? originY,
+    Expression<double>? angle,
+    Expression<double>? isoRatio,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -298,18 +416,18 @@ class ProjectCompanion extends UpdateCompanion<Project> {
     });
   }
 
-  ProjectCompanion copyWith(
-      {Value<int> id,
-      Value<String> title,
-      Value<String> description,
-      Value<String> pathRawPic,
-      Value<String> pathCroppedPic,
-      Value<Uint8List> markers,
-      Value<double> originX,
-      Value<double> originY,
-      Value<double> angle,
-      Value<double> isoRatio}) {
-    return ProjectCompanion(
+  ProjectsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? title,
+      Value<String>? description,
+      Value<String>? pathRawPic,
+      Value<String>? pathCroppedPic,
+      Value<Uint8List?>? markers,
+      Value<double?>? originX,
+      Value<double?>? originY,
+      Value<double?>? angle,
+      Value<double?>? isoRatio}) {
+    return ProjectsCompanion(
       id: id ?? this.id,
       title: title ?? this.title,
       description: description ?? this.description,
@@ -361,7 +479,7 @@ class ProjectCompanion extends UpdateCompanion<Project> {
 
   @override
   String toString() {
-    return (StringBuffer('ProjectCompanion(')
+    return (StringBuffer('ProjectsCompanion(')
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('description: $description, ')
@@ -377,226 +495,16 @@ class ProjectCompanion extends UpdateCompanion<Project> {
   }
 }
 
-class $ProjectsTable extends Projects with TableInfo<$ProjectsTable, Project> {
-  final GeneratedDatabase _db;
-  final String _alias;
-  $ProjectsTable(this._db, [this._alias]);
-  final VerificationMeta _idMeta = const VerificationMeta('id');
-  GeneratedIntColumn _id;
-  @override
-  GeneratedIntColumn get id => _id ??= _constructId();
-  GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn('id', $tableName, false,
-        hasAutoIncrement: true, declaredAsPrimaryKey: true);
-  }
-
-  final VerificationMeta _titleMeta = const VerificationMeta('title');
-  GeneratedTextColumn _title;
-  @override
-  GeneratedTextColumn get title => _title ??= _constructTitle();
-  GeneratedTextColumn _constructTitle() {
-    return GeneratedTextColumn(
-      'title',
-      $tableName,
-      false,
-    );
-  }
-
-  final VerificationMeta _descriptionMeta =
-      const VerificationMeta('description');
-  GeneratedTextColumn _description;
-  @override
-  GeneratedTextColumn get description =>
-      _description ??= _constructDescription();
-  GeneratedTextColumn _constructDescription() {
-    return GeneratedTextColumn('description', $tableName, false,
-        defaultValue: const Constant(''));
-  }
-
-  final VerificationMeta _pathRawPicMeta = const VerificationMeta('pathRawPic');
-  GeneratedTextColumn _pathRawPic;
-  @override
-  GeneratedTextColumn get pathRawPic => _pathRawPic ??= _constructPathRawPic();
-  GeneratedTextColumn _constructPathRawPic() {
-    return GeneratedTextColumn('path_raw_pic', $tableName, false,
-        defaultValue: const Constant(''));
-  }
-
-  final VerificationMeta _pathCroppedPicMeta =
-      const VerificationMeta('pathCroppedPic');
-  GeneratedTextColumn _pathCroppedPic;
-  @override
-  GeneratedTextColumn get pathCroppedPic =>
-      _pathCroppedPic ??= _constructPathCroppedPic();
-  GeneratedTextColumn _constructPathCroppedPic() {
-    return GeneratedTextColumn('path_cropped_pic', $tableName, false,
-        defaultValue: const Constant(''));
-  }
-
-  final VerificationMeta _markersMeta = const VerificationMeta('markers');
-  GeneratedBlobColumn _markers;
-  @override
-  GeneratedBlobColumn get markers => _markers ??= _constructMarkers();
-  GeneratedBlobColumn _constructMarkers() {
-    return GeneratedBlobColumn(
-      'markers',
-      $tableName,
-      true,
-    );
-  }
-
-  final VerificationMeta _originXMeta = const VerificationMeta('originX');
-  GeneratedRealColumn _originX;
-  @override
-  GeneratedRealColumn get originX => _originX ??= _constructOriginX();
-  GeneratedRealColumn _constructOriginX() {
-    return GeneratedRealColumn(
-      'origin_x',
-      $tableName,
-      true,
-    );
-  }
-
-  final VerificationMeta _originYMeta = const VerificationMeta('originY');
-  GeneratedRealColumn _originY;
-  @override
-  GeneratedRealColumn get originY => _originY ??= _constructOriginY();
-  GeneratedRealColumn _constructOriginY() {
-    return GeneratedRealColumn(
-      'origin_y',
-      $tableName,
-      true,
-    );
-  }
-
-  final VerificationMeta _angleMeta = const VerificationMeta('angle');
-  GeneratedRealColumn _angle;
-  @override
-  GeneratedRealColumn get angle => _angle ??= _constructAngle();
-  GeneratedRealColumn _constructAngle() {
-    return GeneratedRealColumn(
-      'angle',
-      $tableName,
-      true,
-    );
-  }
-
-  final VerificationMeta _isoRatioMeta = const VerificationMeta('isoRatio');
-  GeneratedRealColumn _isoRatio;
-  @override
-  GeneratedRealColumn get isoRatio => _isoRatio ??= _constructIsoRatio();
-  GeneratedRealColumn _constructIsoRatio() {
-    return GeneratedRealColumn(
-      'iso_ratio',
-      $tableName,
-      true,
-    );
-  }
-
-  @override
-  List<GeneratedColumn> get $columns => [
-        id,
-        title,
-        description,
-        pathRawPic,
-        pathCroppedPic,
-        markers,
-        originX,
-        originY,
-        angle,
-        isoRatio
-      ];
-  @override
-  $ProjectsTable get asDslTable => this;
-  @override
-  String get $tableName => _alias ?? 'projects';
-  @override
-  final String actualTableName = 'projects';
-  @override
-  VerificationContext validateIntegrity(Insertable<Project> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
-    }
-    if (data.containsKey('title')) {
-      context.handle(
-          _titleMeta, title.isAcceptableOrUnknown(data['title'], _titleMeta));
-    } else if (isInserting) {
-      context.missing(_titleMeta);
-    }
-    if (data.containsKey('description')) {
-      context.handle(
-          _descriptionMeta,
-          description.isAcceptableOrUnknown(
-              data['description'], _descriptionMeta));
-    }
-    if (data.containsKey('path_raw_pic')) {
-      context.handle(
-          _pathRawPicMeta,
-          pathRawPic.isAcceptableOrUnknown(
-              data['path_raw_pic'], _pathRawPicMeta));
-    }
-    if (data.containsKey('path_cropped_pic')) {
-      context.handle(
-          _pathCroppedPicMeta,
-          pathCroppedPic.isAcceptableOrUnknown(
-              data['path_cropped_pic'], _pathCroppedPicMeta));
-    }
-    if (data.containsKey('markers')) {
-      context.handle(_markersMeta,
-          markers.isAcceptableOrUnknown(data['markers'], _markersMeta));
-    }
-    if (data.containsKey('origin_x')) {
-      context.handle(_originXMeta,
-          originX.isAcceptableOrUnknown(data['origin_x'], _originXMeta));
-    }
-    if (data.containsKey('origin_y')) {
-      context.handle(_originYMeta,
-          originY.isAcceptableOrUnknown(data['origin_y'], _originYMeta));
-    }
-    if (data.containsKey('angle')) {
-      context.handle(
-          _angleMeta, angle.isAcceptableOrUnknown(data['angle'], _angleMeta));
-    }
-    if (data.containsKey('iso_ratio')) {
-      context.handle(_isoRatioMeta,
-          isoRatio.isAcceptableOrUnknown(data['iso_ratio'], _isoRatioMeta));
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  Project map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return Project.fromData(data, _db, prefix: effectivePrefix);
-  }
-
-  @override
-  $ProjectsTable createAlias(String alias) {
-    return $ProjectsTable(_db, alias);
-  }
-}
-
 abstract class _$ProjectsDatabase extends GeneratedDatabase {
-  _$ProjectsDatabase(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
-  $ProjectsTable _projects;
-  $ProjectsTable get projects => _projects ??= $ProjectsTable(this);
-  ProjectsDao _projectsDao;
-  ProjectsDao get projectsDao =>
-      _projectsDao ??= ProjectsDao(this as ProjectsDatabase);
+  _$ProjectsDatabase(QueryExecutor e) : super(e);
+  late final $ProjectsTable projects = $ProjectsTable(this);
+  late final ProjectsDao projectsDao = ProjectsDao(this as ProjectsDatabase);
   @override
-  Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
+  Iterable<TableInfo<Table, Object?>> get allTables =>
+      allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [projects];
 }
-
-// **************************************************************************
-// DaoGenerator
-// **************************************************************************
 
 mixin _$ProjectsDaoMixin on DatabaseAccessor<ProjectsDatabase> {
   $ProjectsTable get projects => attachedDatabase.projects;

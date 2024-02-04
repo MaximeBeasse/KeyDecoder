@@ -1,0 +1,12 @@
+{
+    "dart.flutterSdkPath": ".fvm/flutter_sdk",
+    "dart.flutterSdkPaths": ["E:/SDK/fvm/versions"],
+    "search.exclude": {
+        "**/.fvm": true
+    },
+    // Remove from file watching
+    "files.watcherExclude": {
+        "**/.fvm": true
+    },
+    "dart.sdkPath": ".fvm/flutter_sdk",
+}

@@ -7,16 +7,11 @@ set_target_properties(lib_opencv PROPERTIES IMPORTED_LOCATION ${OpenCV_DIR}/libs
 find_library(log-lib log)
 
 add_library(native_cv
-
-        SHARED
-
-        ./core_cv.cpp
-        )
+    SHARED
+    ./core_cv.cpp
+)
 
 target_link_libraries(native_cv
-
-        lib_opencv
-
-        ${log-lib}
-
-        )
+    lib_opencv
+    ${log-lib}
+)

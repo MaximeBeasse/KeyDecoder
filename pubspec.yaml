@@ -1,90 +1,46 @@
 name: keydecoder
 description: A key decoding app that lets you decode your key from a picture.
 
-# The following line prevents the package from being accidentally published to
-# pub.dev using `pub publish`. This is preferred for private packages.
-publish_to: "none" # Remove this line if you wish to publish to pub.dev
+publish_to: "none"
 
-# The following defines the version and build number for your application.
-# A version number is three numbers separated by dots, like 1.2.43
-# followed by an optional build number separated by a +.
-# Both the version and the builder number may be overridden in flutter
-# build by specifying --build-name and --build-number, respectively.
-# In Android, build-name is used as versionName while build-number used as versionCode.
-# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
-# In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
-# Read more about iOS versioning at
-# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+3
+version: 1.1.0+4
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=3.0.0 <3.13.6"
 
 dependencies:
+  animate_icons: ^2.0.0
+  community_material_icon: ^5.4.55
+  drift_sqflite: ^2.0.0
+  ffi: ^2.0.1
   flutter:
     sdk: flutter
-  animate_icons: ^0.0.4
-  community_material_icon: ^5.4.55
-  flutter_keyboard_visibility: ^4.0.2
-  flutter_slidable: ^0.5.7
-  fluttericon: ^1.0.7
-  image: ^2.1.19
-  image_picker: ^0.6.7+11
-  material_design_icons_flutter: ^4.0.5755
-  matrix4_transform: ^1.1.5
-  moor_flutter: ^3.1.0
+  flutter_keyboard_visibility: ^5.4.0
+  flutter_slidable: ^2.0.0
+  fluttericon: ^2.0.0
+  image: ^3.3.0
+  image_picker: ^0.8.6
+  material_design_icons_flutter: ^7.0.7296
+  matrix4_transform: ^2.0.1
   path: ^1.7.0
-  path_provider: ^1.6.14
-  provider: ^3.2.0
-  rename: ^1.2.0
-  shared_preferences: ^0.5.12+4
-  sqlite3_flutter_libs: ^0.2.0
-  url_launcher: ^5.7.10
+  path_provider: ^2.0.11
+  provider: ^6.0.5
+  rename: ^3.0.1
+  shared_preferences: ^2.0.15
+  sqlite3_flutter_libs: ^0.5.12
+  url_launcher: ^6.2.4
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  build_runner: ^1.10.2 # https://pub.dev/packages/build_runner
-  flutter_launcher_icons: ^0.8.0
-
-  moor_generator: ^3.3.1 # https://pub.dev/packages/moor_generator
+  build_runner: ^2.3.3
+  drift_dev: ^2.4.1
+  flutter_launcher_icons: ^0.11.0
 
 flutter_icons:
   android: true
   ios: true
   image_path: "assets/icon.png"
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
-# The following section is specific to Flutter.
 flutter:
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
-  # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
-  # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/assets-and-images/#resolution-aware.
-  # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/assets-and-images/#from-packages
-  # To add custom fonts to your application, add a fonts section here,
-  # in this "flutter" section. Each entry in this list should have a
-  # "family" key with the font family name, and a "fonts" key with a
-  # list giving the asset and other descriptors for the font. For
-  # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
-  #
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/custom-fonts/#from-packages
